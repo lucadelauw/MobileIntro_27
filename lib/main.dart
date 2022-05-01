@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'TeacherHome.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -64,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateTeacher() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const TeacherHomePage()),
+      MaterialPageRoute(builder: (context) => const TeacherHome()),
     );
   }
 
@@ -157,22 +159,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class TeacherHomePage extends StatelessWidget {
-  const TeacherHomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          title: const Text('E-xam')
-      ),
-      body: Center(
-        child: Text('teacherteset'),
-      ),
-    );
-  }
-}
-
 class StudentHomePage extends StatelessWidget {
   const StudentHomePage({Key? key}) : super(key: key);
 
@@ -183,11 +169,13 @@ class StudentHomePage extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text("E-xam")),
         body: const Center(
-          child: SizedBox(
+          child:
+            SizedBox(
               width: 300,
-              child: MyStatefulWidget()),
+              child: MyStatefulWidget()
+            ),
+          ),
         ),
-      ),
     );
   }
 }
