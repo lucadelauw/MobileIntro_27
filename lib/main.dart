@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
       ),
       home: const MyHomePage(title: 'E-xam'),
     );
@@ -110,29 +110,48 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              'Yo:',
             ),
             Text(
               '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .headline4,
             ),
-            TextButton(
+            SizedBox(
+              height: 150,
+              width: 150,
+              child: TextButton(
                 onPressed: _navigateTeacher,
                 child: const Text(
-                  'Teacher'
-                )),
-            TextButton(
+                    'Teacher'
+                ),
+                style: TextButton.styleFrom(
+                    primary: Colors.white,
+                    backgroundColor: Colors.red
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 100,
+            ),
+            SizedBox(
+              height: 150,
+              width: 150,
+              child: TextButton(
                 onPressed: _navigateStudent,
                 child: const Text(
-                  'Student'
-                )),
+                    'Student'
+                ),
+                style: TextButton.styleFrom(
+                    primary: Colors.white,
+                    backgroundColor: Colors.red
+                ),
+              ),
+            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
@@ -145,7 +164,7 @@ class TeacherHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('E-xam')
+          title: const Text('E-xam')
       ),
       body: Center(
         child: Text('teacherteset'),
@@ -159,13 +178,67 @@ class StudentHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          title: const Text('E-xam')
-      ),
-      body: Center(
-        child: Text('studenttest'),
+    return MaterialApp(
+      title: 'E-xam',
+      home: Scaffold(
+        appBar: AppBar(title: const Text("E-xam")),
+        body: const Center(
+          child: SizedBox(
+              width: 300,
+              child: MyStatefulWidget()),
+        ),
       ),
     );
   }
+}
+
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({Key? key}) : super(key: key);
+
+  @override
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+}
+
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  String dropdownValue = '452343';
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      value: dropdownValue,
+      icon: const Icon(Icons.arrow_downward),
+      elevation: 16,
+      style: const TextStyle(color: Colors.deepPurple),
+      underline: Container(
+        height: 2,
+        color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? newValue) {
+        setState(() {
+          dropdownValue = newValue!;
+        });
+      },
+      items: <StudentObject>[
+        StudentObject(452343, "Luca De Lauw"),
+        StudentObject(342232, "Bla"),
+        StudentObject(049255, "Ma"),
+        StudentObject(525653, "Ga"),
+        StudentObject(510032, "Ra"),
+        StudentObject(465029, "La"),
+      ]
+          .map<DropdownMenuItem<String>>((item) {
+        return DropdownMenuItem<String>(
+          value: item.studentNumber.toString(),
+          child: Text("s" + item.studentNumber.toString() + ": " + item.name),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class StudentObject{
+  int studentNumber;
+  String name;
+
+  StudentObject(this.studentNumber, this.name);
 }
