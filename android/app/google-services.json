@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "800562369400",
+    "project_id": "mobile-intro-27",
+    "storage_bucket": "mobile-intro-27.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:800562369400:android:151cc1f80b0d022c936e8d",
+        "android_client_info": {
+          "package_name": "com.example.mobileintro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "800562369400-vmib1jrjuh7mhbmj23s4idpk0smsooin.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2Rwmg9A8qwMjhp7axMOSKCbJGNCaaeTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "800562369400-vmib1jrjuh7mhbmj23s4idpk0smsooin.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

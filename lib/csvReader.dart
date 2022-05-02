@@ -32,7 +32,7 @@ class CsvReader {
 
       final fields = utf8.decode(_paths!.single.bytes!.toList());
       RegExp(r'[0-9]{6};.+').allMatches(fields).forEach((element) {
-        students[int.parse(element.group(0)!.split(";")![0])] = element.group(0)!.split(";")[1];
+        students[int.parse(element.group(0)!.split(";")[0])] = element.group(0)!.split(";")[1];
       });
 
       log(students.toString());
