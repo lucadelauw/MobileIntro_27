@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
+import 'package:mobileintro/ManageQuestion.dart';
 import 'package:mobileintro/ManageStudents.dart';
 import 'package:mobileintro/storage.dart';
 
@@ -16,6 +17,13 @@ class TeacherHome extends StatelessWidget{
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const StudentPage()),
+      );
+    }
+
+    void _navigateQuestionPage() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ManageQuestion()),
       );
     }
 
@@ -48,7 +56,7 @@ class TeacherHome extends StatelessWidget{
               width: 150,
               height: 150,
               child: TextButton(
-                onPressed: null,
+                onPressed: _navigateQuestionPage,
                 child: const Text(
                     'Questions'
                 ),

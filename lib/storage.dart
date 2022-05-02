@@ -10,6 +10,10 @@ class Storage {
   static bool inited = false;
 
   static Future<void> addStudent(int number, String name) async {
+    if (!inited) {
+      await init();
+    }
+
     await FirebaseFirestore.instance.collection('students').where(
         'number', isEqualTo: number).get().then((value) async =>
     {
@@ -21,6 +25,10 @@ class Storage {
   }
 
   static Future<void> removeStudent(int number) async {
+    if (!inited) {
+      await init();
+    }
+
     await FirebaseFirestore.instance.collection('students').where(
         'number', isEqualTo: number).get().then((value) =>
         value.docs.first.reference.delete());
@@ -56,42 +64,80 @@ class Storage {
   }
 
   static Future<void> setMultipleChoiceQuestion(int questionNumber, MultipleChoiceQuestion questionData) async {
+    if (!inited) {
+      await init();
+    }
+
     await FirebaseFirestore.instance.collection('questions').doc(
-        questionNumber.toString()).set({'type': 'MultipleChoice', 'input': questionData.input, 'answer': questionData.answer});
+        questionNumber.toString()).set({'question': questionData.question, 'type': 'MultipleChoice', 'input': questionData.input, 'answer': questionData.answer});
   }
 
   static Future<void> setOpenQuestion(int questionNumber, OpenQuestion questionData) async {
+    if (!inited) {
+      await init();
+    }
+
     await FirebaseFirestore.instance.collection('questions').doc(
-        questionNumber.toString()).set({'type': 'Open', 'input': questionData.input, 'answer': questionData.answer});
+        questionNumber.toString()).set({'question': questionData.question, 'type': 'Open', 'input': questionData.input, 'answer': questionData.answer});
   }
 
   static Future<void> setCodeCorrectionQuestion(int questionNumber, CodeCorrectionQuestion questionData) async {
+    if (!inited) {
+      await init();
+    }
+
     await FirebaseFirestore.instance.collection('questions').doc(
-        questionNumber.toString()).set({'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer});
+        questionNumber.toString()).set({'question': questionData.question, 'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer});
+  }
+
+  static Future<List<Question>> getQuestions() async {
+    if (!inited) {
+      await init();
+    }
+
+    List<Question> questions = [];
+    await FirebaseFirestore.instance.collection('questions').get().then((value) => {
+      value.docs.forEach((element) {
+        questions.add(Question(element.get('question')));
+      })
+    });
+    log(questions.toString());
+    return questions;
   }
 }
 
-class MultipleChoiceQuestion {
+class Question {
+  String question = '';
+  Question(this.question);
+}
+
+class MultipleChoiceQuestion implements Question {
+  @override
+  String question;
   List<String> input = [];
   String answer = "";
 
-  MultipleChoiceQuestion(this.input, this.answer) {
+  MultipleChoiceQuestion(this.question, this.input, this.answer) {
     if (!input.contains(answer)) {
       throw("MultipleChoiceQuestion has no correct answer");
     }
   }
 }
 
-class OpenQuestion {
+class OpenQuestion implements Question {
+  @override
+  String question;
   String input = "";
   String? answer = "";
 
-  OpenQuestion(this.input, this.answer);
+  OpenQuestion(this.question, this.input, this.answer);
 }
 
-class CodeCorrectionQuestion {
+class CodeCorrectionQuestion implements Question{
+  @override
+  String question;
   String input = "";
   String answer = "";
 
-  CodeCorrectionQuestion(this.input, this.answer);
+  CodeCorrectionQuestion(this.question, this.input, this.answer);
 }

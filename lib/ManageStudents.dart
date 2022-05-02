@@ -9,7 +9,6 @@ class StudentPage extends StatefulWidget {
 
   @override
   _StudentPageState createState() => _StudentPageState();
-
 }
 
 class _StudentPageState extends State<StudentPage> {
