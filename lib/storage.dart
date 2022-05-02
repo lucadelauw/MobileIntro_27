@@ -18,6 +18,18 @@ class Storage {
     await FirebaseFirestore.instance.collection('E-xam').doc('students').set(students.map((key, value) => MapEntry(key.toString(), value)));
   }
 
+  static Future<void> addStudent(int number, String name) async {
+    await FirebaseFirestore.instance.collection('students').where('number', isEqualTo: number).get().then((value) async => {
+      if (value.size == 0) {
+        await FirebaseFirestore.instance.collection('students').add({'name': name, 'number': number})
+      }
+    });
+  }
+
+  static Future<void> removeStudent(int number) async {
+    await FirebaseFirestore.instance.collection('students').where('number', isEqualTo: number).get().then((value) => value.docs.first.reference.delete());
+  }
+
   static Future<Map<int, String>> getStudents() async {
 
     if (!inited) {
@@ -26,8 +38,14 @@ class Storage {
 
     var students = <int, String>{};
 
-    await FirebaseFirestore.instance.collection('E-xam').doc('students').get().then((value) => {
+    /*await FirebaseFirestore.instance.collection('E-xam').doc('students').get().then((value) => {
       students = value.data()!.map((key, value) => MapEntry(int.parse(key), value.toString()))
+    });*/
+
+    await FirebaseFirestore.instance.collection('students').get().then((value) => {
+      value.docs.forEach((element) {
+        students[element.get('number')] = element.get('name');
+      })
     });
 
     return students;

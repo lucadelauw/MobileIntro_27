@@ -49,9 +49,13 @@ class _StudentPageState extends State<StudentPage> {
                     label: Text(students[key]!),
                     onPressed: () {
                       setState(() {
-                        log("here");
-                        students.remove(key);
-                        Storage.setStudents(students);
+                        Storage.removeStudent(key).then((value) => {
+                          Storage.getStudents().then((students) => {
+                            setState(() {
+                              this.students = students;
+                            })
+                          })
+                        });
                       });
                     } ,
                   )
@@ -120,8 +124,8 @@ class _StudentPageState extends State<StudentPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Student Added')),
                           );
-                          students[int.parse(studentNumberController.value.text)] = studentNameController.value.text;
-                          Storage.setStudents(students).then((value) => {
+                          //students[int.parse(studentNumberController.value.text)] = studentNameController.value.text;
+                          Storage.addStudent(int.parse(studentNumberController.value.text), studentNameController.value.text).then((value) => {
                             Storage.getStudents().then((students) => {
                               setState(() {
                                 this.students = students;
@@ -138,9 +142,14 @@ class _StudentPageState extends State<StudentPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         CsvReader().getStudents().then((students) => {
-                          setState(() {
-                            this.students.addAll(students);
-                            Storage.setStudents(this.students);
+                          students.forEach((key, value) {
+                            Storage.addStudent(key, value).then((value) => {
+                              Storage.getStudents().then((students) => {
+                                setState(() {
+                                  this.students = students;
+                                })
+                              })
+                            });
                           })
                         });
                       },
