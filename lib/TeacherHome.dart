@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
+import 'package:mobileintro/ManageStudents.dart';
+import 'package:mobileintro/storage.dart';
 
 
 class TeacherHome extends StatelessWidget{
@@ -77,23 +80,4 @@ class TeacherHome extends StatelessWidget{
       ),
     );
   }
-}
-
-class StudentPage extends StatelessWidget {
-  const StudentPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-        title: const Text('E-xam')
-        ),
-        body: Center(
-          child: Row(
-
-          )
-        )
-    );
-  }
-
 }

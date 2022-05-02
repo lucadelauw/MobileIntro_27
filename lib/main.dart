@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mobileintro/storage.dart';
 
 import 'TeacherHome.dart';
 
@@ -50,19 +53,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   void _navigateTeacher() {
     Navigator.push(
       context,
@@ -111,16 +101,6 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Yo:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headline4,
-            ),
             SizedBox(
               height: 150,
               width: 150,
@@ -164,16 +144,13 @@ class StudentHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'E-xam',
-      home: Scaffold(
-        appBar: AppBar(title: const Text("E-xam")),
-        body: const Center(
-          child:
-            SizedBox(
-              width: 300,
-              child: MyStatefulWidget()
-            ),
+    return Scaffold(
+      appBar: AppBar(title: const Text("E-xam")),
+      body: const Center(
+        child:
+          SizedBox(
+            width: 300,
+            child: MyStatefulWidget()
           ),
         ),
     );
@@ -188,7 +165,19 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  String dropdownValue = '452343';
+  String? dropdownValue;
+
+  List<StudentObject> students = [];
+
+  @override
+  void initState() {
+    Storage.getStudents().then((students) => {
+      setState(() {
+        this.students = students;
+      })
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -206,14 +195,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           dropdownValue = newValue!;
         });
       },
-      items: <StudentObject>[
-        StudentObject(452343, "Luca De Lauw"),
-        StudentObject(342232, "Bla"),
-        StudentObject(049255, "Ma"),
-        StudentObject(525653, "Ga"),
-        StudentObject(510032, "Ra"),
-        StudentObject(465029, "La"),
-      ]
+      items: students
           .map<DropdownMenuItem<String>>((item) {
         return DropdownMenuItem<String>(
           value: item.studentNumber.toString(),
@@ -222,11 +204,4 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       }).toList(),
     );
   }
-}
-
-class StudentObject{
-  int studentNumber;
-  String name;
-
-  StudentObject(this.studentNumber, this.name);
 }

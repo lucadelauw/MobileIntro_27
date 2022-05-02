@@ -1,7 +1,9 @@
+import 'dart:developer';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Storage {
-  void setStudents(List<StudentObject> students) async {
+  static Future<void> setStudents(List<StudentObject> students) async {
     final prefs = await SharedPreferences.getInstance();
 
     var studentNames = <String>[];
@@ -15,22 +17,26 @@ class Storage {
     await prefs.setStringList("StudentNumbers", studentNumbers);
     await prefs.setStringList("StudentNames", studentNames);
 
+    return;
   }
 
-  Future<List<StudentObject>> getStudents() async {
+  static Future<List<StudentObject>> getStudents() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final List<String>? numbers = prefs.getStringList("StudentNumbers");
-    final List<String>? names = prefs.getStringList("StudentNames");
+    final List<String> numbers = prefs.getStringList("StudentNumbers")!.toList();
+    final List<String> names = prefs.getStringList("StudentNames")!.toList();
 
     var students = <StudentObject>[];
 
-    if (numbers?.length != names?.length) {
-      throw new Exception();
+    log(numbers.length.toString());
+    log(names.length.toString());
+
+    if (numbers.length != names.length) {
+      throw Exception("StudentName length not equal to StudentNumber length");
     }
 
-    for (var i = 0; i < numbers!.length; i++) {
-      students.add(StudentObject(int.parse(numbers![i]), names![i]));
+    for (var i = 0; i < numbers.length; i++) {
+      students.add(StudentObject(int.parse(numbers[i]), names[i]));
     }
 
     return students;
