@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:mobileintro/csvReader.dart';
 import 'package:mobileintro/storage.dart';
 
 class StudentPage extends StatefulWidget {
@@ -13,14 +14,11 @@ class StudentPage extends StatefulWidget {
 
 class _StudentPageState extends State<StudentPage> {
 
-  List<StudentObject> students = [];
+  var students = <int, String>{};
 
   @override
   void initState() {
-    Storage.getStudents().then((List<StudentObject> students) => {
-      for (var student in students) {
-        log(student.studentNumber.toString() + " " + student.name)
-      },
+    Storage.getStudents().then((students) => {
       setState(() {
         this.students = students;
       })
@@ -45,14 +43,14 @@ class _StudentPageState extends State<StudentPage> {
               spacing: 8.0, // gap between adjacent chips
               runSpacing: 4.0, // gap between lines
               children: [
-                for (var student in students)
+                for (int key in students.keys)
                   InputChip(
                     avatar: Icon(Icons.remove),
-                    label: Text(student.name),
+                    label: Text(students[key]!),
                     onPressed: () {
                       setState(() {
                         log("here");
-                        students.remove(student);
+                        students.remove(key);
                         Storage.setStudents(students);
                       });
                     } ,
@@ -65,7 +63,7 @@ class _StudentPageState extends State<StudentPage> {
             Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -112,7 +110,7 @@ class _StudentPageState extends State<StudentPage> {
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(vertical: 40.0),
                     child: ElevatedButton(
                       onPressed: () {
                         // Validate returns true if the form is valid, or false otherwise.
@@ -122,9 +120,7 @@ class _StudentPageState extends State<StudentPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Student Added')),
                           );
-                          log(studentNumberController.value.text);
-                          log(studentNameController.value.text);
-                          students.add(StudentObject(int.parse(studentNumberController.value.text), studentNameController.value.text));
+                          students[int.parse(studentNumberController.value.text)] = studentNameController.value.text;
                           Storage.setStudents(students).then((value) => {
                             Storage.getStudents().then((students) => {
                               setState(() {
@@ -135,6 +131,20 @@ class _StudentPageState extends State<StudentPage> {
                         }
                       },
                       child: const Text('Add student'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        CsvReader().getStudents().then((students) => {
+                          setState(() {
+                            this.students.addAll(students);
+                            Storage.setStudents(this.students);
+                          })
+                        });
+                      },
+                      child: const Text('Import students'),
                     ),
                   ),
                 ],

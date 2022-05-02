@@ -167,7 +167,7 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String? dropdownValue;
 
-  List<StudentObject> students = [];
+  Map<int, String> students = <int, String>{};
 
   @override
   void initState() {
@@ -195,13 +195,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           dropdownValue = newValue!;
         });
       },
-      items: students
-          .map<DropdownMenuItem<String>>((item) {
-        return DropdownMenuItem<String>(
-          value: item.studentNumber.toString(),
-          child: Text("s" + item.studentNumber.toString() + ": " + item.name),
-        );
-      }).toList(),
+      items: students.entries.map((e) => DropdownMenuItem(value: e.key.toString(), child: Text(e.key.toString() + ": " + e.value),)).toList()
+      ,
     );
   }
 }
