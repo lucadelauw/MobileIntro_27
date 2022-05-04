@@ -171,6 +171,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   @override
   void initState() {
+    Storage().isSynced().listen((event) {
+      log(event.toString());
+    });
     Storage().getStudents().then((students) => {
       setState(() {
         this.students = students;

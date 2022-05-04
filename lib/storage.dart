@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:mobileintro/firebase_options.dart';
 
@@ -48,7 +49,6 @@ class Storage {
     await FirebaseFirestore.instance.collection('students').get().then((
         value) =>
     {
-      log(value.metadata.isFromCache.toString()),
       value.docs.forEach((element) {
         students[element.get('number')] = element.get('name');
       })
@@ -102,6 +102,15 @@ class Storage {
     });
     log(questions.toString());
     return questions;
+  }
+
+  Stream<bool> isSynced() async* {
+
+     while (true) {
+       await for (final snapshot in FirebaseFirestore.instance.collection("students").snapshots(includeMetadataChanges: true)) {
+         yield (!snapshot.metadata.isFromCache && !snapshot.metadata.hasPendingWrites);
+       }
+     }
   }
 
   // TODO: getQuestion(int questionNumber)
