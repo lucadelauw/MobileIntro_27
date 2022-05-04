@@ -171,7 +171,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   @override
   void initState() {
-    Storage.getStudents().then((students) => {
+    Storage().getStudents().then((students) => {
       setState(() {
         this.students = students;
       })

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:mobileintro/firebase_options.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,12 +8,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Storage {
 
+  // Singleton
+  static final Storage _storage = Storage._privateConstructor();
+
+  factory Storage() {
+    return _storage;
+  }
+
+  Storage._privateConstructor();
+
   static bool inited = false;
 
-  static Future<void> addStudent(int number, String name) async {
-    if (!inited) {
-      await init();
-    }
+   Future<void> addStudent(int number, String name) async {
+     await _init();
 
     await FirebaseFirestore.instance.collection('students').where(
         'number', isEqualTo: number).get().then((value) async =>
@@ -24,30 +32,23 @@ class Storage {
     });
   }
 
-  static Future<void> removeStudent(int number) async {
-    if (!inited) {
-      await init();
-    }
+  Future<void> removeStudent(int number) async {
+    await _init();
 
     await FirebaseFirestore.instance.collection('students').where(
         'number', isEqualTo: number).get().then((value) =>
         value.docs.first.reference.delete());
   }
 
-  static Future<Map<int, String>> getStudents() async {
-    if (!inited) {
-      await init();
-    }
+  Future<Map<int, String>> getStudents() async {
+    await _init();
 
     var students = <int, String>{};
-
-    /*await FirebaseFirestore.instance.collection('E-xam').doc('students').get().then((value) => {
-      students = value.data()!.map((key, value) => MapEntry(int.parse(key), value.toString()))
-    });*/
 
     await FirebaseFirestore.instance.collection('students').get().then((
         value) =>
     {
+      log(value.metadata.isFromCache.toString()),
       value.docs.forEach((element) {
         students[element.get('number')] = element.get('name');
       })
@@ -56,44 +57,42 @@ class Storage {
     return students;
   }
 
-  static Future<void> init() async {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    await FirebaseFirestore.instance.enablePersistence();
-    inited = true;
-    return;
+  Future<void> _init() async {
+     try {
+       if (Firebase.apps.isNotEmpty) {
+         return;
+       }
+     } catch(e) {
+       log("Initializing firebase/firestore");
+       await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+       await FirebaseFirestore.instance.enablePersistence();
+       inited = true;
+     }
   }
 
-  static Future<void> setMultipleChoiceQuestion(int questionNumber, MultipleChoiceQuestion questionData) async {
-    if (!inited) {
-      await init();
-    }
+  Future<void> setMultipleChoiceQuestion(int questionNumber, MultipleChoiceQuestion questionData) async {
+    await _init();
 
     await FirebaseFirestore.instance.collection('questions').doc(
         questionNumber.toString()).set({'question': questionData.question, 'type': 'MultipleChoice', 'input': questionData.input, 'answer': questionData.answer});
   }
 
-  static Future<void> setOpenQuestion(int questionNumber, OpenQuestion questionData) async {
-    if (!inited) {
-      await init();
-    }
+  Future<void> setOpenQuestion(int questionNumber, OpenQuestion questionData) async {
+    await _init();
 
     await FirebaseFirestore.instance.collection('questions').doc(
         questionNumber.toString()).set({'question': questionData.question, 'type': 'Open', 'input': questionData.input, 'answer': questionData.answer});
   }
 
-  static Future<void> setCodeCorrectionQuestion(int questionNumber, CodeCorrectionQuestion questionData) async {
-    if (!inited) {
-      await init();
-    }
+  Future<void> setCodeCorrectionQuestion(int questionNumber, CodeCorrectionQuestion questionData) async {
+    await _init();
 
     await FirebaseFirestore.instance.collection('questions').doc(
         questionNumber.toString()).set({'question': questionData.question, 'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer});
   }
 
-  static Future<List<Question>> getQuestions() async {
-    if (!inited) {
-      await init();
-    }
+  Future<List<Question>> getQuestions() async {
+    await _init();
 
     List<Question> questions = [];
     await FirebaseFirestore.instance.collection('questions').get().then((value) => {
@@ -104,6 +103,8 @@ class Storage {
     log(questions.toString());
     return questions;
   }
+
+  // TODO: getQuestion(int questionNumber)
 }
 
 class Question {

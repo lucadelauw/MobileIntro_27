@@ -14,10 +14,11 @@ class StudentPage extends StatefulWidget {
 class _StudentPageState extends State<StudentPage> {
 
   var students = <int, String>{};
+  bool loading = true;
 
   @override
   void initState() {
-    Storage.getStudents().then((students) => {
+    Storage().getStudents().then((students) => {
       setState(() {
         this.students = students;
       })
@@ -38,6 +39,10 @@ class _StudentPageState extends State<StudentPage> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if (loading) CircularProgressIndicator(
+              value: null,
+              semanticsLabel: 'Linear progress indicator',
+            ),
             Wrap(
               spacing: 8.0, // gap between adjacent chips
               runSpacing: 4.0, // gap between lines
@@ -48,8 +53,8 @@ class _StudentPageState extends State<StudentPage> {
                     label: Text(students[key]!),
                     onPressed: () {
                       setState(() {
-                        Storage.removeStudent(key).then((value) => {
-                          Storage.getStudents().then((students) => {
+                        Storage().removeStudent(key).then((value) => {
+                          Storage().getStudents().then((students) => {
                             setState(() {
                               this.students = students;
                             })
@@ -124,8 +129,8 @@ class _StudentPageState extends State<StudentPage> {
                             const SnackBar(content: Text('Student Added')),
                           );
                           //students[int.parse(studentNumberController.value.text)] = studentNameController.value.text;
-                          Storage.addStudent(int.parse(studentNumberController.value.text), studentNameController.value.text).then((value) => {
-                            Storage.getStudents().then((students) => {
+                          Storage().addStudent(int.parse(studentNumberController.value.text), studentNameController.value.text).then((value) => {
+                            Storage().getStudents().then((students) => {
                               setState(() {
                                 this.students = students;
                               })
@@ -142,8 +147,8 @@ class _StudentPageState extends State<StudentPage> {
                       onPressed: () {
                         CsvReader().getStudents().then((students) => {
                           students.forEach((key, value) {
-                            Storage.addStudent(key, value).then((value) => {
-                              Storage.getStudents().then((students) => {
+                            Storage().addStudent(key, value).then((value) => {
+                              Storage().getStudents().then((students) => {
                                 setState(() {
                                   this.students = students;
                                 })

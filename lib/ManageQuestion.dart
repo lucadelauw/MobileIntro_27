@@ -14,7 +14,7 @@ class _ManageQuestionState extends State<ManageQuestion> {
   List<Question> questions = [];
 
   void initState() {
-    Storage.getQuestions().then((questions) => {
+    Storage().getQuestions().then((questions) => {
       setState(() {
         this.questions = questions;
       })
