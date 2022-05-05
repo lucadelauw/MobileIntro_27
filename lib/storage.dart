@@ -33,6 +33,21 @@ class Storage {
     });
   }
 
+  Future<void> addStudents(Map<int, String> students) async {
+    await _init();
+
+    List<Future> futures = [];
+    students.forEach((number, name) {
+      futures.add(
+        FirebaseFirestore.instance.collection('students').add(
+          {'name': name, 'number': number}
+        )
+      );
+    });
+
+    await Future.wait(futures);
+  }
+
   Future<void> removeStudent(int number) async {
     await _init();
 
@@ -108,7 +123,7 @@ class Storage {
 
      while (true) {
        await for (final snapshot in FirebaseFirestore.instance.collection("students").snapshots(includeMetadataChanges: true)) {
-         yield (!snapshot.metadata.isFromCache && !snapshot.metadata.hasPendingWrites);
+         yield (!snapshot.metadata.isFromCache/* && !snapshot.metadata.hasPendingWrites*/);
        }
      }
   }

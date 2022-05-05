@@ -34,8 +34,7 @@ class CsvReader {
       RegExp(r'[0-9]{6};.+').allMatches(fields).forEach((element) {
         students[int.parse(element.group(0)!.split(";")[0])] = element.group(0)!.split(";")[1];
       });
-
-      log(students.toString());
+      
       return students;
     } on PlatformException catch (e) {
       print("Unsupported operation" + e.toString());

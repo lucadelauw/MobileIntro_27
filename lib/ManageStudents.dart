@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:mobileintro/csvReader.dart';
@@ -23,7 +24,8 @@ class _StudentPageState extends State<StudentPage> {
     Storage().getStudents().then((students) => {
       setState(() {
         this.students = students;
-      })
+      }),
+      setLoading(false)
     });
     super.initState();
   }
@@ -42,21 +44,24 @@ class _StudentPageState extends State<StudentPage> {
               value: null,
               semanticsLabel: 'Linear progress indicator',
             ),
+            if (!loading)
             Wrap(
               spacing: 8.0, // gap between adjacent chips
               runSpacing: 4.0, // gap between lines
               children: [
                 for (int key in students.keys)
                   InputChip(
-                    avatar: Icon(Icons.remove),
+                    avatar: const Icon(Icons.remove),
                     label: Text(students[key]!),
                     onPressed: () {
+                      setLoading(true);
                       setState(() {
                         Storage().removeStudent(key).then((value) => {
                           Storage().getStudents().then((students) => {
                             setState(() {
                               this.students = students;
-                            })
+                            }),
+                            setLoading(false)
                           })
                         });
                       });
@@ -122,6 +127,7 @@ class _StudentPageState extends State<StudentPage> {
                       onPressed: () {
                         // Validate returns true if the form is valid, or false otherwise.
                         if (_formKey.currentState!.validate()) {
+                          setLoading(true);
                           // If the form is valid, display a snackbar. In the real world,
                           // you'd often call a server or save the information in a database.
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -132,7 +138,8 @@ class _StudentPageState extends State<StudentPage> {
                             Storage().getStudents().then((students) => {
                               setState(() {
                                 this.students = students;
-                              })
+                              }),
+                              setLoading(false)
                             })
                           });
                         }
@@ -144,16 +151,16 @@ class _StudentPageState extends State<StudentPage> {
                     padding: const EdgeInsets.symmetric(vertical: 40.0),
                     child: ElevatedButton(
                       onPressed: () {
+                        setLoading(true);
                         CsvReader().getStudents().then((students) => {
-                          students.forEach((key, value) {
-                            Storage().addStudent(key, value).then((value) => {
-                              Storage().getStudents().then((students) => {
-                                setState(() {
-                                  this.students = students;
-                                })
-                              })
-                            });
-                          })
+                          Storage().addStudents(students).then((value) => {
+                            Storage().getStudents().then((students) => {
+                              setState(() {
+                                this.students = students;
+                              }),
+                              setLoading(false)
+                            })
+                          }),
                         });
                       },
                       child: const Text('Import students'),
@@ -165,5 +172,13 @@ class _StudentPageState extends State<StudentPage> {
           ],
         )
     );
+  }
+
+  setLoading(bool loading) {
+    if (mounted) {
+      setState(() {
+        this.loading = loading;
+      });
+    }
   }
 }
