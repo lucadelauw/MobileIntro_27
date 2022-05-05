@@ -1,9 +1,16 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:mobileintro/storage.dart';
 
 import 'TeacherHome.dart';
+
+const routeHome = '/';
+const routeTeacher = '/teacher';
+const routeStudent = '/student';
+const routeManageStudents = '/teacher/students';
+const routeManageQuestions = '/teacher/questions';
 
 void main() {
   runApp(const MyApp());
@@ -17,6 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'E-xam',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -29,7 +37,37 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.red,
       ),
-      home: const MyHomePage(title: 'E-xam'),
+      //home: const MyHomePage(title: 'E-xam'),
+      onGenerateRoute: (settings) {
+        late Widget page;
+        switch (settings.name) {
+          case routeHome:
+            page = const MyHomePage(title: "E-xam");
+            break;
+          case routeTeacher:
+            page = const TeacherHome();
+            break;
+          case routeStudent:
+            page = const StudentHomePage();
+            break;
+          case routeManageStudents:
+            page = const MyHomePage(title: "E-xam");
+            break;
+          case routeManageQuestions:
+            page = const MyHomePage(title: "E-xam");
+            break;
+
+          default:
+            page = const MyHomePage(title: "E-xam");
+            break;
+        }
+        return MaterialPageRoute<dynamic>(
+          builder: (context) {
+            return page;
+          },
+          settings: settings,
+        );
+      },
     );
   }
 }
@@ -75,12 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
+    return MyScaffold(
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -106,13 +139,9 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 150,
               child: TextButton(
                 onPressed: _navigateTeacher,
-                child: const Text(
-                    'Teacher'
-                ),
+                child: const Text('Teacher'),
                 style: TextButton.styleFrom(
-                    primary: Colors.white,
-                    backgroundColor: Colors.red
-                ),
+                    primary: Colors.white, backgroundColor: Colors.red),
               ),
             ),
             SizedBox(
@@ -123,13 +152,9 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 150,
               child: TextButton(
                 onPressed: _navigateStudent,
-                child: const Text(
-                    'Student'
-                ),
+                child: const Text('Student'),
                 style: TextButton.styleFrom(
-                    primary: Colors.white,
-                    backgroundColor: Colors.red
-                ),
+                    primary: Colors.white, backgroundColor: Colors.red),
               ),
             ),
           ],
@@ -144,15 +169,10 @@ class StudentHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("E-xam")),
-      body: const Center(
-        child:
-          SizedBox(
-            width: 300,
-            child: MyStatefulWidget()
-          ),
-        ),
+    return const MyScaffold(
+      body: Center(
+        child: SizedBox(width: 300, child: MyStatefulWidget()),
+      ),
     );
   }
 }
@@ -171,14 +191,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   @override
   void initState() {
-    Storage().isSynced().listen((event) {
-      log(event.toString());
-    });
     Storage().getStudents().then((students) => {
-      setState(() {
-        this.students = students;
-      })
-    });
+          if (mounted) {
+              setState(() {
+                this.students = students;
+              })
+            }
+        });
     super.initState();
   }
 
@@ -198,8 +217,63 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           dropdownValue = newValue!;
         });
       },
-      items: students.entries.map((e) => DropdownMenuItem(value: e.key.toString(), child: Text(e.key.toString() + ": " + e.value),)).toList()
-      ,
+      items: students.entries
+          .map((e) => DropdownMenuItem(
+                value: e.key.toString(),
+                child: Text(e.key.toString() + ": " + e.value),
+              ))
+          .toList(),
     );
+  }
+}
+
+class _MyAppBarState extends State<MyAppBar> {
+  StreamSubscription? subscription;
+  bool isSynced = false;
+
+  @override
+  Widget build(BuildContext context) {
+    subscription = Storage().isSynced().listen((newValue) {
+      if (mounted) {
+        setState(() {
+          isSynced = newValue;
+        });
+      }
+    });
+
+    return AppBar(
+      leading: Navigator.canPop(context) ? const BackButton() : null,
+      title: const Text('E-xammmmmmm'),
+      actions: [Icon(isSynced ? Icons.cloud_done : Icons.sync_problem)],
+    );
+  }
+
+  @override
+  void dispose() {
+    subscription?.cancel();
+    super.dispose();
+  }
+}
+
+class MyAppBar extends StatefulWidget {
+  const MyAppBar({Key? key}) : super(key: key);
+
+  @override
+  _MyAppBarState createState() => _MyAppBarState();
+}
+
+class MyScaffold extends StatelessWidget {
+  final Widget body;
+
+  const MyScaffold({Key? key, required this.body}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: MyAppBar(),
+        ),
+        body: body);
   }
 }

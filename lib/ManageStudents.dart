@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:mobileintro/csvReader.dart';
 import 'package:mobileintro/storage.dart';
 
+import 'main.dart';
+
 class StudentPage extends StatefulWidget {
   const StudentPage({Key? key}) : super(key: key);
 
@@ -32,10 +34,7 @@ class _StudentPageState extends State<StudentPage> {
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text("E-xam"),
-        ),
+    return MyScaffold(
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

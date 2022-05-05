@@ -100,11 +100,11 @@ class Storage {
         questions.add(Question(element.get('question')));
       })
     });
-    log(questions.toString());
     return questions;
   }
 
   Stream<bool> isSynced() async* {
+     await _init();
 
      while (true) {
        await for (final snapshot in FirebaseFirestore.instance.collection("students").snapshots(includeMetadataChanges: true)) {

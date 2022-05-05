@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:mobileintro/ManageQuestion.dart';
 import 'package:mobileintro/ManageStudents.dart';
+import 'package:mobileintro/main.dart';
 import 'package:mobileintro/storage.dart';
 
 
@@ -27,10 +28,7 @@ class TeacherHome extends StatelessWidget{
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-          title: const Text('E-xam')
-      ),
+    return MyScaffold(
       body: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

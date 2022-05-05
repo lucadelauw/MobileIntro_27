@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobileintro/main.dart';
 import 'package:mobileintro/storage.dart';
 
 class ManageQuestion extends StatefulWidget{
@@ -24,10 +25,7 @@ class _ManageQuestionState extends State<ManageQuestion> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('E-xam'),
-      ),
+    return MyScaffold(
       body: ListView(
         children: [
           for (var question in questions)
