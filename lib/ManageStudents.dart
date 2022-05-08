@@ -55,15 +55,12 @@ class _StudentPageState extends State<StudentPage> {
                     label: Text(students[key]!),
                     onPressed: () {
                       setLoading(true);
+                      Storage().removeStudent(key);
+                      Storage().getStudents().then((students) => {
                       setState(() {
-                        Storage().removeStudent(key).then((value) => {
-                          Storage().getStudents().then((students) => {
-                            setState(() {
-                              this.students = students;
-                            }),
-                            setLoading(false)
-                          })
-                        });
+                      this.students = students;
+                      }),
+                      setLoading(false)
                       });
                     } ,
                   )
@@ -134,13 +131,12 @@ class _StudentPageState extends State<StudentPage> {
                             const SnackBar(content: Text('Student Added')),
                           );
                           //students[int.parse(studentNumberController.value.text)] = studentNameController.value.text;
-                          Storage().addStudent(int.parse(studentNumberController.value.text), studentNameController.value.text).then((value) => {
-                            Storage().getStudents().then((students) => {
-                              setState(() {
-                                this.students = students;
-                              }),
-                              setLoading(false)
-                            })
+                          Storage().addStudent(int.parse(studentNumberController.value.text), studentNameController.value.text);
+                          Storage().getStudents().then((students) => {
+                            setState(() {
+                              this.students = students;
+                            }),
+                            setLoading(false)
                           });
                         }
                       },
@@ -153,14 +149,13 @@ class _StudentPageState extends State<StudentPage> {
                       onPressed: () {
                         setLoading(true);
                         CsvReader().getStudents().then((students) => {
-                          Storage().addStudents(students).then((value) => {
-                            Storage().getStudents().then((students) => {
-                              setState(() {
-                                this.students = students;
-                              }),
-                              setLoading(false)
-                            })
-                          }),
+                          Storage().addStudents(students),
+                          Storage().getStudents().then((students) => {
+                            setState(() {
+                              this.students = students;
+                            }),
+                            setLoading(false)
+                          })
                         });
                       },
                       child: const Text('Import students'),

@@ -18,42 +18,28 @@ class Storage {
 
   Storage._privateConstructor();
 
-  static bool inited = false;
-
    Future<void> addStudent(int number, String name) async {
      await _init();
 
-    await FirebaseFirestore.instance.collection('students').where(
-        'number', isEqualTo: number).get().then((value) async =>
-    {
-      if (value.size == 0) {
-        await FirebaseFirestore.instance.collection('students').add(
-            {'name': name, 'number': number})
-      }
-    });
+     await FirebaseFirestore.instance.collection('students').doc(number.toString()).set({'name': name, 'number': number});
   }
 
   Future<void> addStudents(Map<int, String> students) async {
     await _init();
 
-    List<Future> futures = [];
+    var batch = FirebaseFirestore.instance.batch();
+
     students.forEach((number, name) {
-      futures.add(
-        FirebaseFirestore.instance.collection('students').add(
-          {'name': name, 'number': number}
-        )
-      );
+      batch.set(FirebaseFirestore.instance.collection('students').doc(number.toString()), {'name': name, 'number': number});
     });
 
-    await Future.wait(futures);
+    await batch.commit();
   }
 
   Future<void> removeStudent(int number) async {
     await _init();
 
-    await FirebaseFirestore.instance.collection('students').where(
-        'number', isEqualTo: number).get().then((value) =>
-        value.docs.first.reference.delete());
+    await FirebaseFirestore.instance.collection('students').doc(number.toString()).delete();
   }
 
   Future<Map<int, String>> getStudents() async {
@@ -81,7 +67,6 @@ class Storage {
        log("Initializing firebase/firestore");
        await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
        await FirebaseFirestore.instance.enablePersistence();
-       inited = true;
      }
   }
 
