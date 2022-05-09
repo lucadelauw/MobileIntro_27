@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:mobileintro/csvReader.dart';
@@ -57,10 +56,10 @@ class _StudentPageState extends State<StudentPage> {
                       setLoading(true);
                       Storage().removeStudent(key);
                       Storage().getStudents().then((students) => {
-                      setState(() {
-                      this.students = students;
-                      }),
-                      setLoading(false)
+                        setState(() {
+                          this.students = students;
+                        }),
+                        setLoading(false)
                       });
                     } ,
                   )

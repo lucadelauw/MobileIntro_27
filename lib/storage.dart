@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:mobileintro/firebase_options.dart';
 
@@ -59,14 +58,16 @@ class Storage {
   }
 
   Future<void> _init() async {
+     log("HERE");
      try {
        if (Firebase.apps.isNotEmpty) {
          return;
+       } else {
+         throw("");
        }
      } catch(e) {
        log("Initializing firebase/firestore");
-       await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-       await FirebaseFirestore.instance.enablePersistence();
+       await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
      }
   }
 

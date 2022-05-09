@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:mobileintro/storage.dart';
@@ -13,7 +14,11 @@ const routeManageStudents = '/teacher/students';
 const routeManageQuestions = '/teacher/questions';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+      .then((_) {
+    runApp(new MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
