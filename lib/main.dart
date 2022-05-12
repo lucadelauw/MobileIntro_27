@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
+import 'package:mobileintro/AnswerQuestion.dart';
 import 'package:mobileintro/storage.dart';
 
 import 'TeacherHome.dart';
@@ -193,6 +194,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String? dropdownValue;
 
   Map<int, String> students = <int, String>{};
+  void _navigateAnswerQuestion() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AnswerQuestion()),
+    );
+  }
 
   @override
   void initState() {
@@ -208,6 +215,48 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    return Scaffold(body:
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Form(
+              key: _formKey,
+              child:
+                DropdownButtonFormField<String>(
+                  value: dropdownValue,
+                  icon: const Icon(Icons.arrow_downward),
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.deepPurple),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownValue = newValue!;
+                    });
+                  },
+                  items: students.entries.map((e) => DropdownMenuItem(
+                    value: e.key.toString(),
+                    child: Text(e.key.toString() + ": " + e.value),
+                  )).toList(),
+                  validator: (value) {
+                    if (value == null || value == "") {
+                      return 'Please enter a valid studentnumber';
+                    }
+                    return null;
+                  },
+                ),
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _navigateAnswerQuestion();
+                  }
+                },
+                child: const Text('Continue'),
+            )
+          ],
+        )
+    );
     return DropdownButton<String>(
       value: dropdownValue,
       icon: const Icon(Icons.arrow_downward),

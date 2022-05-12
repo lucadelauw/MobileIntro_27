@@ -51,14 +51,6 @@ class Storage {
   Future<Map<int, String>> getStudents() async {
     await _init();
 
-    //var students = <int, String>{};
-
-    /*await FirebaseFirestore.instance.collection('students').get().then((value) => {
-      value.docs.forEach((element) {
-        students[element.get('number')] = element.get('name');
-      })
-    });*/
-
     return students;
   }
 
@@ -125,6 +117,16 @@ class Storage {
   Future<bool> isSynced() async {
      await _init();
      return _isSynced;
+  }
+
+  Future<Question> getQuestion(int questionNumber) async {
+     await _init();
+
+     await FirebaseFirestore.instance.collection('questions').doc(questionNumber.toString()).get().then((value) => {
+       log(value.toString())
+     });
+
+     return Question("question");
   }
 
   // TODO: getQuestion(int questionNumber)
