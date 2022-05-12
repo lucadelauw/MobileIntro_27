@@ -233,17 +233,19 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 }
 
 class _MyAppBarState extends State<MyAppBar> {
-  StreamSubscription? subscription;
-  bool isSynced = false;
+  Timer? timer;
+  bool isSynced = true;
 
   @override
   Widget build(BuildContext context) {
-    subscription = Storage().isSynced().listen((newValue) {
-      if (mounted) {
-        setState(() {
-          isSynced = newValue;
-        });
-      }
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      Storage().isSynced().then((value) => {
+        if (mounted) {
+          setState(() {
+            isSynced = value;
+          })
+        }
+      });
     });
 
     return AppBar(
@@ -255,7 +257,7 @@ class _MyAppBarState extends State<MyAppBar> {
 
   @override
   void dispose() {
-    subscription?.cancel();
+    timer?.cancel();
     super.dispose();
   }
 }

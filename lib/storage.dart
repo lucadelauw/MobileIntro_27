@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:mobileintro/firebase_options.dart';
@@ -10,6 +11,9 @@ class Storage {
 
   // Singleton
   static final Storage _storage = Storage._privateConstructor();
+  static bool _isSynced = false;
+
+  var students = <int, String>{};
 
   factory Storage() {
     return _storage;
@@ -20,45 +24,45 @@ class Storage {
    Future<void> addStudent(int number, String name) async {
      await _init();
 
-     await FirebaseFirestore.instance.collection('students').doc(number.toString()).set({'name': name, 'number': number});
+     students[number] = name;
+     FirebaseFirestore.instance.collection('students').doc(number.toString()).set({'name': name, 'number': number});
   }
 
   Future<void> addStudents(Map<int, String> students) async {
     await _init();
 
+    students.addAll(students);
     var batch = FirebaseFirestore.instance.batch();
 
     students.forEach((number, name) {
       batch.set(FirebaseFirestore.instance.collection('students').doc(number.toString()), {'name': name, 'number': number});
     });
 
-    await batch.commit();
+    batch.commit();
   }
 
   Future<void> removeStudent(int number) async {
     await _init();
 
-    await FirebaseFirestore.instance.collection('students').doc(number.toString()).delete();
+    students.remove(number);
+    FirebaseFirestore.instance.collection('students').doc(number.toString()).delete();
   }
 
   Future<Map<int, String>> getStudents() async {
     await _init();
 
-    var students = <int, String>{};
+    //var students = <int, String>{};
 
-    await FirebaseFirestore.instance.collection('students').get().then((
-        value) =>
-    {
+    /*await FirebaseFirestore.instance.collection('students').get().then((value) => {
       value.docs.forEach((element) {
         students[element.get('number')] = element.get('name');
       })
-    });
+    });*/
 
     return students;
   }
 
   Future<void> _init() async {
-     log("HERE");
      try {
        if (Firebase.apps.isNotEmpty) {
          return;
@@ -68,6 +72,20 @@ class Storage {
      } catch(e) {
        log("Initializing firebase/firestore");
        await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
+       FirebaseFirestore.instance.collection('students').snapshots().listen((event) async {
+         var tempStudents = <int, String>{};
+         await FirebaseFirestore.instance.collection('students').get().then((value) => {
+           value.docs.forEach((element) {
+             tempStudents[element.get('number')] = element.get('name');
+           }),
+           students = tempStudents
+         });
+       });
+       Timer.periodic(const Duration(seconds: 1), (timer) async {
+         await FirebaseFirestore.instance.collection("students").snapshots(includeMetadataChanges: true).first.then((value) => {
+           _isSynced = (!value.metadata.isFromCache && !value.metadata.hasPendingWrites),
+         });
+       });
      }
   }
 
@@ -104,14 +122,9 @@ class Storage {
     return questions;
   }
 
-  Stream<bool> isSynced() async* {
+  Future<bool> isSynced() async {
      await _init();
-
-     while (true) {
-       await for (final snapshot in FirebaseFirestore.instance.collection("students").snapshots(includeMetadataChanges: true)) {
-         yield (!snapshot.metadata.isFromCache/* && !snapshot.metadata.hasPendingWrites*/);
-       }
-     }
+     return _isSynced;
   }
 
   // TODO: getQuestion(int questionNumber)

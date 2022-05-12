@@ -39,7 +39,7 @@ class _StudentPageState extends State<StudentPage> {
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (loading) CircularProgressIndicator(
+            if (loading) const CircularProgressIndicator(
               value: null,
               semanticsLabel: 'Linear progress indicator',
             ),
@@ -65,7 +65,7 @@ class _StudentPageState extends State<StudentPage> {
                   )
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 100,
             ),
             Form(
@@ -76,7 +76,7 @@ class _StudentPageState extends State<StudentPage> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 100,
                       ),
                       Flexible(child:
@@ -94,7 +94,7 @@ class _StudentPageState extends State<StudentPage> {
                         ),
                       ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 100,
                       ),
                       Flexible(child:
@@ -112,7 +112,7 @@ class _StudentPageState extends State<StudentPage> {
                         ),
                       ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 100,
                       )
                     ],
