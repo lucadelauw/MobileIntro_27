@@ -286,7 +286,7 @@ class _MyAppBarState extends State<MyAppBar> {
   bool isSynced = true;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       Storage().isSynced().then((value) => {
         if (mounted) {
@@ -296,6 +296,11 @@ class _MyAppBarState extends State<MyAppBar> {
         }
       });
     });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return AppBar(
       leading: Navigator.canPop(context) ? const BackButton() : null,

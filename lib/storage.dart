@@ -14,6 +14,7 @@ class Storage {
   static bool _isSynced = false;
 
   var students = <int, String>{};
+  var questions = <Question>[];
 
   factory Storage() {
     return _storage;
@@ -73,6 +74,15 @@ class Storage {
            students = tempStudents
          });
        });
+       FirebaseFirestore.instance.collection('questions').snapshots().listen((event) async {
+         var tempQuestions = <Question>[];
+         await FirebaseFirestore.instance.collection('questions').get().then((value) => {
+           value.docs.forEach((element) {
+             tempQuestions.add(Question(element.get('question')));
+           }),
+           questions = tempQuestions
+         });
+       });
        Timer.periodic(const Duration(seconds: 1), (timer) async {
          await FirebaseFirestore.instance.collection("students").snapshots(includeMetadataChanges: true).first.then((value) => {
            _isSynced = (!value.metadata.isFromCache && !value.metadata.hasPendingWrites),
@@ -112,6 +122,11 @@ class Storage {
       })
     });
     return questions;
+  }
+
+  Future<int> getQuestionCount() async {
+     await _init();
+     return questions.length;
   }
 
   Future<bool> isSynced() async {

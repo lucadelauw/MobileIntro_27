@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileintro/main.dart';
@@ -26,7 +28,12 @@ class _AnswerQuestionState extends State<AnswerQuestion> {
 
   @override
   Widget build(BuildContext context) {
-    return MyScaffoldQuestions(
+    return Scaffold(
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(50),
+        child: MyAppBar(),
+      ),
+      bottomNavigationBar: const MyBottomBar(),
       body: ListView(
         children: [
           for (var question in questions)
@@ -40,30 +47,49 @@ class _AnswerQuestionState extends State<AnswerQuestion> {
   }
 }
 
-class MyScaffoldQuestions extends StatelessWidget {
-  final Widget body;
+class _MyBottomBarState extends State<MyBottomBar> {
+  Timer? timer;
+  int totalQuestion = 0;
 
-  const MyScaffoldQuestions({Key? key, required this.body}) : super(key: key);
+  @override
+  void initState() {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      Storage().getQuestionCount().then((value) => {
+        if (mounted) {
+          setState(() {
+            totalQuestion = value;
+          })
+        }
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: MyAppBar(),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.arrow_left),
-              label: 'Previous question'
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.arrow_right),
-              label: 'Next Question'
-            )
-          ],
-        ),
-        body: body);
+    return BottomAppBar(
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          IconButton(icon: const Icon(Icons.arrow_left), onPressed: () {},),
+          Text("Question 1 of 12"),
+          IconButton(icon: const Icon(Icons.arrow_right), onPressed: () {},),
+        ],
+      ),
+    );
   }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+}
+
+class MyBottomBar extends StatefulWidget {
+  const MyBottomBar({Key? key}) : super(key: key);
+
+  @override
+  _MyBottomBarState createState() => _MyBottomBarState();
 }
