@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mobileintro/firebase_options.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,7 +79,15 @@ class Storage {
          var tempQuestions = <Question>[];
          await FirebaseFirestore.instance.collection('questions').get().then((value) => {
            value.docs.forEach((element) {
-             tempQuestions.add(Question(element.get('question')));
+             if(element.get('type') == "Open") {
+               tempQuestions.add(OpenQuestion(element.get('question'), element.get('answer')));
+             }
+             if(element.get('type') == "MultipleChoice") {
+               tempQuestions.add(MultipleChoiceQuestion(element.get('question'), element.get('input'), element.get('answer')));
+             }
+             if(element.get('type') == "CodeCorrection") {
+               tempQuestions.add(CodeCorrectionQuestion(element.get('question'), element.get('input'), element.get('answer')));
+             }
            }),
            questions = tempQuestions
          });
@@ -102,7 +111,7 @@ class Storage {
     await _init();
 
     await FirebaseFirestore.instance.collection('questions').doc(
-        questionNumber.toString()).set({'question': questionData.question, 'type': 'Open', 'input': questionData.input, 'answer': questionData.answer});
+        questionNumber.toString()).set({'question': questionData.question, 'type': 'Open', 'answer': questionData.answer});
   }
 
   Future<void> setCodeCorrectionQuestion(int questionNumber, CodeCorrectionQuestion questionData) async {
@@ -115,12 +124,20 @@ class Storage {
   Future<List<Question>> getQuestions() async {
     await _init();
 
-    List<Question> questions = [];
+    /*List<Question> questions = [];
     await FirebaseFirestore.instance.collection('questions').get().then((value) => {
       value.docs.forEach((element) {
-        questions.add(Question(element.get('question')));
+        if(element.get('type') == "Open") {
+          questions.add(OpenQuestion(element.get('question'), element.get('answer')));
+        }
+        if(element.get('type') == "MultipleChoice") {
+          questions.add(MultipleChoiceQuestion(element.get('question'), element.get('input'), element.get('answer')));
+        }
+        if(element.get('type') == "CodeCorrection") {
+          questions.add(CodeCorrectionQuestion(element.get('question'), element.get('input'), element.get('answer')));
+        }
       })
-    });
+    });*/
     return questions;
   }
 
@@ -134,22 +151,32 @@ class Storage {
      return _isSynced;
   }
 
-  Future<Question> getQuestion(int questionNumber) async {
+  Future<Question?> getQuestion(int questionNumber) async {
      await _init();
 
+     Question? toReturn;
      await FirebaseFirestore.instance.collection('questions').doc(questionNumber.toString()).get().then((value) => {
-       log(value.toString())
+       if(value.get('type') == "Open") {
+         toReturn = OpenQuestion(value.get('question'), value.get('answer'))
+       },
+       if(value.get('type') == "MultipleChoice") {
+         toReturn = MultipleChoiceQuestion(value.get('question'), value.get('input'), value.get('answer'))
+       },
+       if(value.get('type') == "CodeCorrection") {
+         toReturn = CodeCorrectionQuestion(value.get('question'), value.get('input'), value.get('answer'))
+       }
      });
 
-     return Question("question");
+     return toReturn;
   }
 
   // TODO: getQuestion(int questionNumber)
 }
 
-class Question {
+abstract class Question {
   String question = '';
   Question(this.question);
+  StatefulWidget getWidget();
 }
 
 class MultipleChoiceQuestion implements Question {
@@ -163,15 +190,66 @@ class MultipleChoiceQuestion implements Question {
       throw("MultipleChoiceQuestion has no correct answer");
     }
   }
+
+  @override
+  StatefulWidget getWidget() {
+    // TODO: implement getWidget
+    throw UnimplementedError();
+  }
 }
 
 class OpenQuestion implements Question {
   @override
   String question;
-  String input = "";
   String? answer = "";
 
-  OpenQuestion(this.question, this.input, this.answer);
+  OpenQuestion(this.question, this.answer);
+
+  @override
+  StatefulWidget getWidget() {
+    return OpenQuestionWidget(question: OpenQuestion(question, answer));
+  }
+}
+
+class OpenQuestionWidget extends StatefulWidget {
+  final OpenQuestion question;
+
+  const OpenQuestionWidget({Key? key, required this.question}) : super(key: key);
+
+  @override
+  _OpenQuestionWidgetState createState() => _OpenQuestionWidgetState();
+}
+
+class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
+  var controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(widget.question.question),
+        Form(child:
+          TextFormField(
+            controller: controller,
+            // The validator receives the text that the user has entered.
+            validator: (value) {
+              if (false) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+            decoration: const InputDecoration(
+                labelText: 'Answer'
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
 }
 
 class CodeCorrectionQuestion implements Question{
@@ -181,4 +259,10 @@ class CodeCorrectionQuestion implements Question{
   String answer = "";
 
   CodeCorrectionQuestion(this.question, this.input, this.answer);
+
+  @override
+  StatefulWidget getWidget() {
+    // TODO: implement getWidget
+    throw UnimplementedError();
+  }
 }

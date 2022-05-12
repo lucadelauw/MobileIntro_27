@@ -15,6 +15,7 @@ class AnswerQuestion extends StatefulWidget{
 class _AnswerQuestionState extends State<AnswerQuestion> {
 
   List<Question> questions = [];
+  int currentQuestion = 0;
 
   @override
   void initState() {
@@ -34,15 +35,7 @@ class _AnswerQuestionState extends State<AnswerQuestion> {
         child: MyAppBar(),
       ),
       bottomNavigationBar: const MyBottomBar(),
-      body: ListView(
-        children: [
-          for (var question in questions)
-            Container(
-              height: 50,
-              child: Center(child: Text(question.question)),
-            ),
-        ],
-      ),
+      body: questions[currentQuestion].getWidget()
     );
   }
 }
@@ -73,7 +66,7 @@ class _MyBottomBarState extends State<MyBottomBar> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           IconButton(icon: const Icon(Icons.arrow_left), onPressed: () {},),
-          Text("Question 1 of 12"),
+          Text("Question 1 of " + totalQuestion.toString()),
           IconButton(icon: const Icon(Icons.arrow_right), onPressed: () {},),
         ],
       ),
