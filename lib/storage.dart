@@ -124,20 +124,6 @@ class Storage {
   Future<List<Question>> getQuestions() async {
     await _init();
 
-    /*List<Question> questions = [];
-    await FirebaseFirestore.instance.collection('questions').get().then((value) => {
-      value.docs.forEach((element) {
-        if(element.get('type') == "Open") {
-          questions.add(OpenQuestion(element.get('question'), element.get('answer')));
-        }
-        if(element.get('type') == "MultipleChoice") {
-          questions.add(MultipleChoiceQuestion(element.get('question'), element.get('input'), element.get('answer')));
-        }
-        if(element.get('type') == "CodeCorrection") {
-          questions.add(CodeCorrectionQuestion(element.get('question'), element.get('input'), element.get('answer')));
-        }
-      })
-    });*/
     return questions;
   }
 
@@ -225,7 +211,6 @@ class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -234,13 +219,6 @@ class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
         Form(child:
           TextFormField(
             controller: controller,
-            // The validator receives the text that the user has entered.
-            validator: (value) {
-              if (false) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
             decoration: const InputDecoration(
                 labelText: 'Answer'
             ),
@@ -262,7 +240,45 @@ class CodeCorrectionQuestion implements Question{
 
   @override
   StatefulWidget getWidget() {
-    // TODO: implement getWidget
-    throw UnimplementedError();
+    return CodeCorrectionWidget(question: CodeCorrectionQuestion(question, input, answer));
   }
+}
+
+class CodeCorrectionWidget extends StatefulWidget {
+  final CodeCorrectionQuestion question;
+
+  const CodeCorrectionWidget({Key? key, required this.question}) : super(key: key);
+
+  @override
+  _CodeCorrectionWidgetState createState() => _CodeCorrectionWidgetState();
+}
+
+class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
+  var controller = TextEditingController();
+
+  @override
+  void initState() {
+    controller.text = widget.question.input;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(widget.question.question),
+        Form(child:
+        TextFormField(
+          controller: controller,
+          decoration: const InputDecoration(
+              labelText: 'Answer'
+          ),
+        ),
+        )
+      ],
+    );
+  }
+
 }
