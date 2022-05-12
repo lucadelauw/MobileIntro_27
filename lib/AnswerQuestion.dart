@@ -34,10 +34,26 @@ class _AnswerQuestionState extends State<AnswerQuestion> {
         preferredSize: Size.fromHeight(50),
         child: MyAppBar(),
       ),
-      bottomNavigationBar: const MyBottomBar(),
-      body: questions[currentQuestion].getWidget()
+      bottomNavigationBar: MyBottomBar(
+          previousCallback: () => {
+            if (currentQuestion > 0) {
+              setState(() => {
+                currentQuestion--
+              })
+            }
+          },
+          nextCallback: () => {
+            if (currentQuestion + 1 < questions.length) {
+              setState(() => {
+                currentQuestion++
+              })
+            }
+          }),
+      body:
+          questions.isNotEmpty ? questions[currentQuestion].getWidget() : null
     );
   }
+
 }
 
 class _MyBottomBarState extends State<MyBottomBar> {
@@ -65,9 +81,9 @@ class _MyBottomBarState extends State<MyBottomBar> {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          IconButton(icon: const Icon(Icons.arrow_left), onPressed: () {},),
-          Text("Question 1 of " + totalQuestion.toString()),
-          IconButton(icon: const Icon(Icons.arrow_right), onPressed: () {},),
+          IconButton(icon: const Icon(Icons.arrow_left), onPressed: widget.previousCallback,),
+          Text("Question  of " + totalQuestion.toString()),
+          IconButton(icon: const Icon(Icons.arrow_right), onPressed: widget.nextCallback,),
         ],
       ),
     );
@@ -81,7 +97,11 @@ class _MyBottomBarState extends State<MyBottomBar> {
 }
 
 class MyBottomBar extends StatefulWidget {
-  const MyBottomBar({Key? key}) : super(key: key);
+  final previousCallback;
+  final nextCallback;
+
+
+  const MyBottomBar({Key? key, required this.previousCallback, required this.nextCallback}) : super(key: key);
 
   @override
   _MyBottomBarState createState() => _MyBottomBarState();
