@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'Questions.dart';
+
 class Storage {
 
   // Singleton
@@ -83,6 +85,7 @@ class Storage {
                tempQuestions.add(OpenQuestion(element.get('question'), element.get('answer')));
              }
              if(element.get('type') == "MultipleChoice") {
+               log(element.get('input').toString());
                tempQuestions.add(MultipleChoiceQuestion(element.get('question'), element.get('input'), element.get('answer')));
              }
              if(element.get('type') == "CodeCorrection") {
@@ -127,11 +130,6 @@ class Storage {
     return questions;
   }
 
-  Future<int> getQuestionCount() async {
-     await _init();
-     return questions.length;
-  }
-
   Future<bool> isSynced() async {
      await _init();
      return _isSynced;
@@ -157,128 +155,4 @@ class Storage {
   }
 
   // TODO: getQuestion(int questionNumber)
-}
-
-abstract class Question {
-  String question = '';
-  Question(this.question);
-  StatefulWidget getWidget();
-}
-
-class MultipleChoiceQuestion implements Question {
-  @override
-  String question;
-  List<String> input = [];
-  String answer = "";
-
-  MultipleChoiceQuestion(this.question, this.input, this.answer) {
-    if (!input.contains(answer)) {
-      throw("MultipleChoiceQuestion has no correct answer");
-    }
-  }
-
-  @override
-  StatefulWidget getWidget() {
-    // TODO: implement getWidget
-    throw UnimplementedError();
-  }
-}
-
-class OpenQuestion implements Question {
-  @override
-  String question;
-  String? answer = "";
-
-  OpenQuestion(this.question, this.answer);
-
-  @override
-  StatefulWidget getWidget() {
-    return OpenQuestionWidget(question: OpenQuestion(question, answer));
-  }
-}
-
-class OpenQuestionWidget extends StatefulWidget {
-  final OpenQuestion question;
-
-  const OpenQuestionWidget({Key? key, required this.question}) : super(key: key);
-
-  @override
-  _OpenQuestionWidgetState createState() => _OpenQuestionWidgetState();
-}
-
-class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
-  var controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(widget.question.question),
-        Form(child:
-          TextFormField(
-            controller: controller,
-            decoration: const InputDecoration(
-                labelText: 'Answer'
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-}
-
-class CodeCorrectionQuestion implements Question{
-  @override
-  String question;
-  String input = "";
-  String answer = "";
-
-  CodeCorrectionQuestion(this.question, this.input, this.answer);
-
-  @override
-  StatefulWidget getWidget() {
-    return CodeCorrectionWidget(question: CodeCorrectionQuestion(question, input, answer));
-  }
-}
-
-class CodeCorrectionWidget extends StatefulWidget {
-  final CodeCorrectionQuestion question;
-
-  const CodeCorrectionWidget({Key? key, required this.question}) : super(key: key);
-
-  @override
-  _CodeCorrectionWidgetState createState() => _CodeCorrectionWidgetState();
-}
-
-class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
-  var controller = TextEditingController();
-
-  @override
-  void initState() {
-    controller.text = widget.question.input;
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(widget.question.question),
-        Form(child:
-        TextFormField(
-          controller: controller,
-          decoration: const InputDecoration(
-              labelText: 'Answer'
-          ),
-        ),
-        )
-      ],
-    );
-  }
-
 }
