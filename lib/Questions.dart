@@ -1,9 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 abstract class Question {
   String question = '';
   Question(this.question);
-  StatefulWidget getWidget();
+  StatefulWidget getWidget(ObjectKey key);
 }
 
 class CodeCorrectionQuestion implements Question{
@@ -11,12 +13,13 @@ class CodeCorrectionQuestion implements Question{
   String question;
   String input = "";
   String answer = "";
+  String? currentAnswer;
 
   CodeCorrectionQuestion(this.question, this.input, this.answer);
 
   @override
-  StatefulWidget getWidget() {
-    return CodeCorrectionWidget(question: CodeCorrectionQuestion(question, input, answer));
+  StatefulWidget getWidget(ObjectKey key) {
+    return CodeCorrectionWidget(key: key,question: CodeCorrectionQuestion(question, input, answer));
   }
 }
 
@@ -31,10 +34,13 @@ class CodeCorrectionWidget extends StatefulWidget {
 
 class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
   var controller = TextEditingController();
+  String initvalue = "";
 
   @override
   void initState() {
-    controller.text = widget.question.input;
+    log(widget.question.currentAnswer.toString());
+    log(widget.question.input);
+    widget.question.currentAnswer == null ? initvalue = widget.question.input : initvalue = widget.question.currentAnswer!;
     super.initState();
   }
 
@@ -47,10 +53,13 @@ class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
         Text(widget.question.question),
         Form(child:
         TextFormField(
-          controller: controller,
+          initialValue: initvalue,
           decoration: const InputDecoration(
               labelText: 'Answer'
           ),
+          onChanged: (value) => {
+            widget.question.currentAnswer = value
+          },
         ),
         )
       ],
@@ -62,12 +71,13 @@ class OpenQuestion implements Question {
   @override
   String question;
   String? answer = "";
+  String? currentAnswer;
 
   OpenQuestion(this.question, this.answer);
 
   @override
-  StatefulWidget getWidget() {
-    return OpenQuestionWidget(question: OpenQuestion(question, answer));
+  StatefulWidget getWidget(ObjectKey key) {
+    return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer));
   }
 }
 
@@ -81,7 +91,6 @@ class OpenQuestionWidget extends StatefulWidget {
 }
 
 class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
-  var controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -92,10 +101,13 @@ class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
         Text(widget.question.question),
         Form(child:
         TextFormField(
-          controller: controller,
+          initialValue: widget.question.currentAnswer,
           decoration: const InputDecoration(
               labelText: 'Answer'
           ),
+          onChanged: (value) => {
+            widget.question.currentAnswer = value
+          },
         ),
         )
       ],
@@ -107,21 +119,22 @@ class MultipleChoiceQuestion implements Question {
   @override
   String question;
   List<String> input = [];
-  String answer = "";
+  int answer = 0;
+  int? selectedAnswer = -1;
 
   MultipleChoiceQuestion(this.question, List<dynamic> input, this.answer) {
     input.forEach((element) {
       this.input.add(element.toString());
     });
 
-    if (!this.input.contains(answer)) {
-      throw("MultipleChoiceQuestion has no correct answer");
+    if (answer >= input.length || answer < 0) {
+      throw("MultipleChoiceQuestion answer invalid index");
     }
   }
 
   @override
-  StatefulWidget getWidget() {
-    return MultipleChoiceWidget(question: MultipleChoiceQuestion(question, input, answer));
+  StatefulWidget getWidget(ObjectKey key) {
+    return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer));
   }
 }
 
@@ -135,7 +148,6 @@ class MultipleChoiceWidget extends StatefulWidget {
 }
 
 class _MultipleChoiceWidgetState extends State<MultipleChoiceWidget> {
-  int? val = -1;
   var controller = TextEditingController();
 
   @override
@@ -150,10 +162,10 @@ class _MultipleChoiceWidgetState extends State<MultipleChoiceWidget> {
           title: Text(widget.question.input[i]),
           leading: Radio(
             value: i,
-            groupValue: val,
+            groupValue: widget.question.selectedAnswer,
             onChanged: (int? value) {
               setState(() {
-                val = value;
+                widget.question.selectedAnswer = value;
               });
             },
             activeColor: Colors.green,

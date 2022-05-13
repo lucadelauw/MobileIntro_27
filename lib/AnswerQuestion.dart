@@ -17,6 +17,7 @@ class AnswerQuestion extends StatefulWidget{
 class _AnswerQuestionState extends State<AnswerQuestion> {
 
   List<Question> questions = [];
+  List<Widget> questionWidgets = [];
   int currentQuestion = 0;
 
   @override
@@ -24,6 +25,9 @@ class _AnswerQuestionState extends State<AnswerQuestion> {
     Storage().getQuestions().then((questions) => {
       setState(() {
         this.questions = questions;
+        questions.forEach((element) {
+          questionWidgets.add(element.getWidget(ObjectKey(element)));
+        });
       })
     });
     super.initState();
@@ -60,7 +64,7 @@ class _AnswerQuestionState extends State<AnswerQuestion> {
         ),
       ),
       body:
-          questions.isNotEmpty ? questions[currentQuestion].getWidget() : null
+          questionWidgets.isNotEmpty ? questionWidgets[currentQuestion] : null
     );
   }
 }
