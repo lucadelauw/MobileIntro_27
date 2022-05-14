@@ -1,10 +1,13 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:mobileintro/storage.dart';
 
 abstract class Question {
+  int studentnumber;
+  int questionnumber;
   String question = '';
-  Question(this.question);
+  Question(this.question, this.studentnumber, this.questionnumber);
   StatefulWidget getWidget(ObjectKey key);
 }
 
@@ -12,16 +15,19 @@ class CodeCorrectionQuestion implements Question{
   @override
   String question;
   @override
+  int questionnumber;
+  @override
+  int studentnumber;
 
   String input = "";
   String answer = "";
   String? currentAnswer;
 
-  CodeCorrectionQuestion(this.question, this.input, this.answer, this.currentAnswer);
+  CodeCorrectionQuestion(this.question, this.input, this.answer, this.currentAnswer, this.questionnumber, this.studentnumber);
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return CodeCorrectionWidget(key: key, question: CodeCorrectionQuestion(question, input, answer, this.currentAnswer));
+    return CodeCorrectionWidget(key: key, question: CodeCorrectionQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
   }
 }
 
@@ -65,21 +71,30 @@ class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
       ],
     );
   }
+
+  @override
+  void dispose() {
+    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer);
+    super.dispose();
+  }
 }
 
 class OpenQuestion implements Question {
   @override
   String question;
   @override
+  int questionnumber;
+  @override
+  int studentnumber;
 
   String? answer = "";
   String? currentAnswer;
 
-  OpenQuestion(this.question, this.answer, this.currentAnswer);
+  OpenQuestion(this.question, this.answer, this.currentAnswer, this.questionnumber, this.studentnumber);
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer, currentAnswer));
+    return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer, currentAnswer, questionnumber, studentnumber));
   }
 }
 
@@ -115,18 +130,27 @@ class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
       ],
     );
   }
+
+  @override
+  void dispose() {
+    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer);
+    super.dispose();
+  }
 }
 
 class MultipleChoiceQuestion implements Question {
   @override
   String question;
   @override
+  int questionnumber;
+  @override
+  int studentnumber;
 
   List<String> input = [];
   int answer = 0;
   int? currentAnswer = -1;
 
-  MultipleChoiceQuestion(this.question, List<dynamic> input, this.answer, this.currentAnswer) {
+  MultipleChoiceQuestion(this.question, List<dynamic> input, this.answer, this.currentAnswer, this.questionnumber, this.studentnumber) {
     input.forEach((element) {
       this.input.add(element.toString());
     });
@@ -138,7 +162,7 @@ class MultipleChoiceQuestion implements Question {
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer, currentAnswer));
+    return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
   }
 }
 
@@ -177,5 +201,11 @@ class _MultipleChoiceWidgetState extends State<MultipleChoiceWidget> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer);
+    super.dispose();
   }
 }
