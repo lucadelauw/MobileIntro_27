@@ -194,10 +194,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String? dropdownValue;
 
   Map<int, String> students = <int, String>{};
-  void _navigateAnswerQuestion() {
+  void _navigateAnswerQuestion(int studentnumber) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const AnswerQuestion()),
+      MaterialPageRoute(builder: (context) => AnswerQuestion(studentnumber: studentnumber)),
     );
   }
 
@@ -249,7 +249,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    _navigateAnswerQuestion();
+                    _navigateAnswerQuestion(int.parse(dropdownValue!));
                   }
                 },
                 child: const Text('Continue'),

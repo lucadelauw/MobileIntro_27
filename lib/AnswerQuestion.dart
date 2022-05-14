@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,9 @@ import 'package:mobileintro/storage.dart';
 import 'Questions.dart';
 
 class AnswerQuestion extends StatefulWidget{
-  const AnswerQuestion({Key? key}) : super(key: key);
+  final int studentnumber;
+
+  const AnswerQuestion({Key? key, required this.studentnumber}) : super(key: key);
 
   @override
   _AnswerQuestionState createState() => _AnswerQuestionState();
@@ -22,7 +25,7 @@ class _AnswerQuestionState extends State<AnswerQuestion> {
 
   @override
   void initState() {
-    Storage().getQuestions().then((questions) => {
+    Storage().getQuestions(widget.studentnumber).then((questions) => {
       setState(() {
         this.questions = questions;
         questions.forEach((element) {

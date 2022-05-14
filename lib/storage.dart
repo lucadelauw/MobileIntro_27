@@ -17,7 +17,7 @@ class Storage {
   static bool _isSynced = false;
 
   var students = <int, String>{};
-  var questions = <Question>[];
+  var questionsStorage = <QuestionStorage>[];
 
   factory Storage() {
     return _storage;
@@ -78,21 +78,24 @@ class Storage {
          });
        });
        FirebaseFirestore.instance.collection('questions').snapshots().listen((event) async {
-         var tempQuestions = <Question>[];
+         var tempQuestions = <QuestionStorage>[];
          await FirebaseFirestore.instance.collection('questions').get().then((value) => {
            value.docs.forEach((element) {
+             List<Map<String, dynamic>> answers = [];
+             for (dynamic answer in element.get('answers')) {
+               answers.add(Map<String, dynamic>.from(answer));
+             }
              if(element.get('type') == "Open") {
-               tempQuestions.add(OpenQuestion(element.get('question'), element.get('answer')));
+               tempQuestions.add(OpenQuestionStorage(element.get('question'), element.get('answer'), answers));
              }
              if(element.get('type') == "MultipleChoice") {
-               log(element.get('input').toString());
-               tempQuestions.add(MultipleChoiceQuestion(element.get('question'), element.get('input'), element.get('answer')));
+               tempQuestions.add(MultipleChoiceQuestionStorage(element.get('question'), List<String>.from(element.get('input')), element.get('answer'), answers));
              }
              if(element.get('type') == "CodeCorrection") {
-               tempQuestions.add(CodeCorrectionQuestion(element.get('question'), element.get('input'), element.get('answer')));
+               tempQuestions.add(CodeCorrectionQuestionStorage(element.get('question'), element.get('input'), element.get('answer'), answers));
              }
            }),
-           questions = tempQuestions
+           questionsStorage = tempQuestions
          });
        });
        Timer.periodic(const Duration(seconds: 1), (timer) async {
@@ -124,9 +127,14 @@ class Storage {
         questionNumber.toString()).set({'question': questionData.question, 'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer});
   }
 
-  Future<List<Question>> getQuestions() async {
+  Future<List<Question>> getQuestions(int studentnumber) async {
     await _init();
 
+    List<Question> questions = [];
+    for (var value in questionsStorage) {
+      log(value.toQuestion(studentnumber).toString());
+      questions.add(value.toQuestion(studentnumber));
+    }
     return questions;
   }
 
@@ -141,13 +149,13 @@ class Storage {
      Question? toReturn;
      await FirebaseFirestore.instance.collection('questions').doc(questionNumber.toString()).get().then((value) => {
        if(value.get('type') == "Open") {
-         toReturn = OpenQuestion(value.get('question'), value.get('answer'))
+         toReturn = OpenQuestion(value.get('question'), value.get('answer'), value.get('answers'))
        },
        if(value.get('type') == "MultipleChoice") {
-         toReturn = MultipleChoiceQuestion(value.get('question'), value.get('input'), value.get('answer'))
+         toReturn = MultipleChoiceQuestion(value.get('question'), value.get('input'), value.get('answer'), value.get('answers'))
        },
        if(value.get('type') == "CodeCorrection") {
-         toReturn = CodeCorrectionQuestion(value.get('question'), value.get('input'), value.get('answer'))
+         toReturn = CodeCorrectionQuestion(value.get('question'), value.get('input'), value.get('answer'), value.get('answers'))
        }
      });
 
@@ -155,4 +163,57 @@ class Storage {
   }
 
   // TODO: getQuestion(int questionNumber)
+}
+
+abstract class QuestionStorage {
+  String question = '';
+  List<Map<String, dynamic>> answers= [];
+  QuestionStorage(this.question, this.answers);
+
+  toQuestion(int studentnumber);
+}
+
+class OpenQuestionStorage implements QuestionStorage {
+  @override
+  String question;
+  @override
+  List<Map<String, dynamic>> answers;
+  String answer;
+
+  OpenQuestionStorage(this.question, this.answer, this.answers);
+
+  @override
+  toQuestion(int studentnumber) {
+    return OpenQuestion(question, answer, answers.singleWhere((element) => (element['number'] == studentnumber))['answer']);
+  }
+}
+class MultipleChoiceQuestionStorage implements QuestionStorage {
+  @override
+  String question;
+  @override
+  List<Map<String, dynamic>> answers;
+  int answer;
+  List<String> input;
+
+  MultipleChoiceQuestionStorage(this.question, this.input, this.answer, this.answers);
+
+  @override
+  toQuestion(int studentnumber) {
+    return MultipleChoiceQuestion(question, input, answer, answers.singleWhere((element) => element['number'] == studentnumber)['answer']);
+  }
+}
+class CodeCorrectionQuestionStorage implements QuestionStorage {
+  @override
+  String question;
+  @override
+  List<Map<String, dynamic>> answers;
+  String input;
+  String answer;
+
+  CodeCorrectionQuestionStorage(this.question, this.input, this.answer, this.answers);
+
+  @override
+  toQuestion(int studentnumber) {
+    return CodeCorrectionQuestion(question, input, answer, answers.singleWhere((element) => element['number'] == studentnumber)['answer']);
+  }
 }

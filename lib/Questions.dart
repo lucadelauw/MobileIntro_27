@@ -11,15 +11,17 @@ abstract class Question {
 class CodeCorrectionQuestion implements Question{
   @override
   String question;
+  @override
+
   String input = "";
   String answer = "";
   String? currentAnswer;
 
-  CodeCorrectionQuestion(this.question, this.input, this.answer);
+  CodeCorrectionQuestion(this.question, this.input, this.answer, this.currentAnswer);
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return CodeCorrectionWidget(key: key,question: CodeCorrectionQuestion(question, input, answer));
+    return CodeCorrectionWidget(key: key, question: CodeCorrectionQuestion(question, input, answer, this.currentAnswer));
   }
 }
 
@@ -38,8 +40,6 @@ class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
 
   @override
   void initState() {
-    log(widget.question.currentAnswer.toString());
-    log(widget.question.input);
     widget.question.currentAnswer == null ? initvalue = widget.question.input : initvalue = widget.question.currentAnswer!;
     super.initState();
   }
@@ -70,14 +70,16 @@ class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
 class OpenQuestion implements Question {
   @override
   String question;
+  @override
+
   String? answer = "";
   String? currentAnswer;
 
-  OpenQuestion(this.question, this.answer);
+  OpenQuestion(this.question, this.answer, this.currentAnswer);
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer));
+    return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer, currentAnswer));
   }
 }
 
@@ -118,11 +120,13 @@ class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
 class MultipleChoiceQuestion implements Question {
   @override
   String question;
+  @override
+
   List<String> input = [];
   int answer = 0;
-  int? selectedAnswer = -1;
+  int? currentAnswer = -1;
 
-  MultipleChoiceQuestion(this.question, List<dynamic> input, this.answer) {
+  MultipleChoiceQuestion(this.question, List<dynamic> input, this.answer, this.currentAnswer) {
     input.forEach((element) {
       this.input.add(element.toString());
     });
@@ -134,7 +138,7 @@ class MultipleChoiceQuestion implements Question {
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer));
+    return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer, currentAnswer));
   }
 }
 
@@ -162,10 +166,10 @@ class _MultipleChoiceWidgetState extends State<MultipleChoiceWidget> {
           title: Text(widget.question.input[i]),
           leading: Radio(
             value: i,
-            groupValue: widget.question.selectedAnswer,
+            groupValue: widget.question.currentAnswer,
             onChanged: (int? value) {
               setState(() {
-                widget.question.selectedAnswer = value;
+                widget.question.currentAnswer = value;
               });
             },
             activeColor: Colors.green,
