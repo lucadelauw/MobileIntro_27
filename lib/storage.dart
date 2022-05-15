@@ -79,26 +79,25 @@ class Storage {
        });
        FirebaseFirestore.instance.collection('questions').snapshots().listen((event) async {
          var tempQuestions = <QuestionStorage>[];
-         await FirebaseFirestore.instance.collection('questions').get().then((value) => {
+         var element;
+         await FirebaseFirestore.instance.collection('questions').get().then((value) {
            for (int i = 0 ; i < value.docs.length; i++) {
-             QueryDocumentSnapshot<Map<String, dynamic>> element = value.docs[i]
-           },
-           value.docs.forEach((element) {
+             element = value.docs[i];
              List<Map<String, dynamic>> answers = [];
              for (dynamic answer in element.get('answers')) {
-               answers.add(Map<String, dynamic>.from(answer));
+             answers.add(Map<String, dynamic>.from(answer));
              }
              if(element.get('type') == "Open") {
-               tempQuestions.add(OpenQuestionStorage(element.get('question'), element.get('answer'), answers, ));
+             tempQuestions.add(OpenQuestionStorage(element.get('question'), element.get('answer'), answers, i));
              }
              if(element.get('type') == "MultipleChoice") {
-               tempQuestions.add(MultipleChoiceQuestionStorage(element.get('question'), List<String>.from(element.get('input')), element.get('answer'), answers));
+             tempQuestions.add(MultipleChoiceQuestionStorage(element.get('question'), List<String>.from(element.get('input')), element.get('answer'), answers, i));
              }
              if(element.get('type') == "CodeCorrection") {
-               tempQuestions.add(CodeCorrectionQuestionStorage(element.get('question'), element.get('input'), element.get('answer'), answers));
+             tempQuestions.add(CodeCorrectionQuestionStorage(element.get('question'), element.get('input'), element.get('answer'), answers, i));
              }
-           }),
-           questionsStorage = tempQuestions
+           }
+           questionsStorage = tempQuestions;
          });
        });
        Timer.periodic(const Duration(seconds: 1), (timer) async {
@@ -137,7 +136,7 @@ class Storage {
      } else {
        tempanswer.add({'number': studentnumber, 'answer': answer});
      }
-     FirebaseFirestore.instance.collection('questions').doc(questionnumber.toString()).update({
+     FirebaseFirestore.instance.collection('questions').doc((questionnumber + 1).toString()).update({
        'answers': tempanswer,
      });
   }
