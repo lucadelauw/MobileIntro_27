@@ -7,6 +7,7 @@ import 'package:mobileintro/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'Questions.dart';
 
@@ -16,6 +17,7 @@ class Storage {
   static final Storage _storage = Storage._privateConstructor();
   static bool _isSynced = false;
 
+  final Geolocator geolocator = Geolocator();
   var students = <int, String>{};
   var questionsStorage = <QuestionStorage>[];
 
@@ -129,12 +131,17 @@ class Storage {
         questionNumber.toString()).set({'question': questionData.question, 'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer});
   }
 
-  setAnswer(int studentnumber, int questionnumber, dynamic answer) {
+  setAnswer(int studentnumber, int questionnumber, dynamic answer) async {
+     log("here");
+     var loc = await _getLocation();
+     log("ddd");
+     log(loc.toString());
      var tempanswer = questionsStorage[questionnumber].answers;
      if (tempanswer.where((element) => element['number'] == studentnumber).isNotEmpty) {
        tempanswer.singleWhere((element) => element['number'] == studentnumber).update('answer', (value) => answer);
+       tempanswer.singleWhere((element) => element['number'] == studentnumber).update('location', (value) => GeoPoint(loc!.latitude, loc.longitude));
      } else {
-       tempanswer.add({'number': studentnumber, 'answer': answer});
+       tempanswer.add({'number': studentnumber, 'answer': answer, 'location': GeoPoint(loc!.latitude, loc.longitude)});
      }
      FirebaseFirestore.instance.collection('questions').doc((questionnumber + 1).toString()).update({
        'answers': tempanswer,
@@ -146,7 +153,6 @@ class Storage {
 
     List<Question> questions = [];
     for (var value in questionsStorage) {
-      log(value.toQuestion(studentnumber).toString());
       questions.add(value.toQuestion(studentnumber));
     }
     return questions;
@@ -157,7 +163,6 @@ class Storage {
 
     List<Question> questions = [];
     for (var value in questionsStorage) {
-      log(value.toQuestionTeacher().toString());
       questions.add(value.toQuestionTeacher());
     }
     return questions;
@@ -169,6 +174,9 @@ class Storage {
   }
 
   // TODO: getQuestion(int questionNumber)
+  Future<Position?> _getLocation() async {
+     return await Geolocator.getCurrentPosition();
+  }
 }
 
 abstract class QuestionStorage {
