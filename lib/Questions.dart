@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:developer';
-
+import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileintro/storage.dart';
 
@@ -46,11 +47,18 @@ class CodeCorrectionWidget extends StatefulWidget {
 }
 
 class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
-  var controller = TextEditingController();
+  StreamSubscription<FGBGType>? subscription;
   String initvalue = "";
+  int timesGoneToBackground = 0;
 
   @override
   void initState() {
+    subscription = FGBGEvents.stream.listen((event) {
+      if (event == FGBGType.background) {
+        timesGoneToBackground++;
+        print(timesGoneToBackground);
+      }// FGBGType.foreground or FGBGType.background
+    });
     widget.question.currentAnswer == null ? initvalue = widget.question.input : initvalue = widget.question.currentAnswer!;
     super.initState();
   }
@@ -72,14 +80,15 @@ class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
             widget.question.currentAnswer = value
           },
         ),
-        )
+        ),
       ],
     );
   }
 
   @override
   void dispose() {
-    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer);
+    subscription?.cancel();
+    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer, timesGoneToBackground);
     super.dispose();
   }
 }
@@ -117,6 +126,18 @@ class OpenQuestionWidget extends StatefulWidget {
 }
 
 class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
+  StreamSubscription<FGBGType>? subscription;
+  int timesGoneToBackground = 0;
+
+  @override
+  void initState() {
+    subscription = FGBGEvents.stream.listen((event) {
+      if (event == FGBGType.background) {
+        timesGoneToBackground++;
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +163,8 @@ class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
 
   @override
   void dispose() {
-    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer);
+    subscription?.cancel();
+    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer, timesGoneToBackground);
     super.dispose();
   }
 }
@@ -189,7 +211,18 @@ class MultipleChoiceWidget extends StatefulWidget {
 }
 
 class _MultipleChoiceWidgetState extends State<MultipleChoiceWidget> {
-  var controller = TextEditingController();
+  StreamSubscription<FGBGType>? subscription;
+  int timesGoneToBackground = 0;
+
+  @override
+  void initState() {
+    subscription = FGBGEvents.stream.listen((event) {
+      if (event == FGBGType.background) {
+        timesGoneToBackground++;
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -199,26 +232,27 @@ class _MultipleChoiceWidgetState extends State<MultipleChoiceWidget> {
       children: [
         Text(widget.question.question),
         for (int i = 0; i < widget.question.input.length; i ++)
-        ListTile(
-          title: Text(widget.question.input[i]),
-          leading: Radio(
-            value: i,
-            groupValue: widget.question.currentAnswer,
-            onChanged: (int? value) {
-              setState(() {
-                widget.question.currentAnswer = value;
-              });
-            },
-            activeColor: Colors.green,
+          ListTile(
+            title: Text(widget.question.input[i]),
+            leading: Radio(
+              value: i,
+              groupValue: widget.question.currentAnswer,
+              onChanged: (int? value) {
+                setState(() {
+                  widget.question.currentAnswer = value;
+                });
+              },
+              activeColor: Colors.green,
+            ),
           ),
-        ),
       ],
     );
   }
 
   @override
   void dispose() {
-    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer);
+    subscription?.cancel();
+    Storage().setAnswer(widget.question.studentnumber, widget.question.questionnumber, widget.question.currentAnswer, timesGoneToBackground);
     super.dispose();
   }
 }

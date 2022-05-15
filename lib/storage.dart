@@ -131,17 +131,15 @@ class Storage {
         questionNumber.toString()).set({'question': questionData.question, 'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer});
   }
 
-  setAnswer(int studentnumber, int questionnumber, dynamic answer) async {
-     log("here");
+  setAnswer(int studentnumber, int questionnumber, dynamic answer, int timeGoneToBackground) async {
      var loc = await _getLocation();
-     log("ddd");
-     log(loc.toString());
      var tempanswer = questionsStorage[questionnumber].answers;
      if (tempanswer.where((element) => element['number'] == studentnumber).isNotEmpty) {
        tempanswer.singleWhere((element) => element['number'] == studentnumber).update('answer', (value) => answer);
        tempanswer.singleWhere((element) => element['number'] == studentnumber).update('location', (value) => GeoPoint(loc!.latitude, loc.longitude));
+       tempanswer.singleWhere((element) => element['number'] == studentnumber).update('timesGoneToBackground', (value) {return value + timeGoneToBackground;});
      } else {
-       tempanswer.add({'number': studentnumber, 'answer': answer, 'location': GeoPoint(loc!.latitude, loc.longitude)});
+       tempanswer.add({'number': studentnumber, 'answer': answer, 'location': GeoPoint(loc!.latitude, loc.longitude), 'timesGoneToBackground': timeGoneToBackground});
      }
      FirebaseFirestore.instance.collection('questions').doc((questionnumber + 1).toString()).update({
        'answers': tempanswer,
