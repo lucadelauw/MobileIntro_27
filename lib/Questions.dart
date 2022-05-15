@@ -9,6 +9,7 @@ abstract class Question {
   String question = '';
   Question(this.question, this.studentnumber, this.questionnumber);
   StatefulWidget getWidget(ObjectKey key);
+  StatefulWidget getEditWidget(ObjectKey key);
 }
 
 class CodeCorrectionQuestion implements Question{
@@ -27,6 +28,10 @@ class CodeCorrectionQuestion implements Question{
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
+    return CodeCorrectionWidget(key: key, question: CodeCorrectionQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
+  }
+  @override
+  StatefulWidget getEditWidget(ObjectKey key) {
     return CodeCorrectionWidget(key: key, question: CodeCorrectionQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
   }
 }
@@ -96,6 +101,10 @@ class OpenQuestion implements Question {
   StatefulWidget getWidget(ObjectKey key) {
     return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer, currentAnswer, questionnumber, studentnumber));
   }
+  @override
+  StatefulWidget getEditWidget(ObjectKey key) {
+    return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer, currentAnswer, questionnumber, studentnumber));
+  }
 }
 
 class OpenQuestionWidget extends StatefulWidget {
@@ -162,6 +171,10 @@ class MultipleChoiceQuestion implements Question {
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
+    return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
+  }
+  @override
+  StatefulWidget getEditWidget(ObjectKey key) {
     return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
   }
 }

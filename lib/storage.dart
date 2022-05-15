@@ -152,6 +152,17 @@ class Storage {
     return questions;
   }
 
+  Future<List<Question>> getQuestionsTeacher() async {
+    await _init();
+
+    List<Question> questions = [];
+    for (var value in questionsStorage) {
+      log(value.toQuestionTeacher().toString());
+      questions.add(value.toQuestionTeacher());
+    }
+    return questions;
+  }
+
   Future<bool> isSynced() async {
      await _init();
      return _isSynced;
@@ -167,6 +178,7 @@ abstract class QuestionStorage {
   int questionnumber = 0;
 
   toQuestion(int studentnumber);
+  toQuestionTeacher();
 }
 
 class OpenQuestionStorage implements QuestionStorage {
@@ -182,7 +194,15 @@ class OpenQuestionStorage implements QuestionStorage {
 
   @override
   toQuestion(int studentnumber) {
-    return OpenQuestion(question, answer, answers.singleWhere((element) => (element['number'] == studentnumber))['answer'], questionnumber, studentnumber);
+    String? currentAnswer;
+    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
+    }
+    return OpenQuestion(question, answer, currentAnswer, questionnumber, studentnumber);
+  }
+  @override
+  toQuestionTeacher() {
+    return OpenQuestion(question, answer, "", questionnumber, 0);
   }
 }
 class MultipleChoiceQuestionStorage implements QuestionStorage {
@@ -199,7 +219,15 @@ class MultipleChoiceQuestionStorage implements QuestionStorage {
 
   @override
   toQuestion(int studentnumber) {
-    return MultipleChoiceQuestion(question, input, answer, answers.singleWhere((element) => element['number'] == studentnumber)['answer'], questionnumber, studentnumber);
+    int? currentAnswer;
+    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
+    }
+    return MultipleChoiceQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber);
+  }
+  @override
+  toQuestionTeacher() {
+    return MultipleChoiceQuestion(question, input, answer, 0, questionnumber, 0);
   }
 }
 class CodeCorrectionQuestionStorage implements QuestionStorage {
@@ -216,6 +244,14 @@ class CodeCorrectionQuestionStorage implements QuestionStorage {
 
   @override
   toQuestion(int studentnumber) {
-    return CodeCorrectionQuestion(question, input, answer, answers.singleWhere((element) => element['number'] == studentnumber)['answer'], questionnumber, studentnumber);
+    String? currentAnswer;
+    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
+    }
+    return CodeCorrectionQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber);
+  }
+  @override
+  toQuestionTeacher() {
+    return CodeCorrectionQuestion(question, input, answer, "", questionnumber, 0);
   }
 }

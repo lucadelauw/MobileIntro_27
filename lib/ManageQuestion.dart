@@ -18,7 +18,7 @@ class _ManageQuestionState extends State<ManageQuestion> {
 
   @override
   void initState() {
-    Storage().getQuestions(0).then((questions) => {
+    Storage().getQuestionsTeacher().then((questions) => {
       setState(() {
         this.questions = questions;
       })
