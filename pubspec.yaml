@@ -54,6 +54,7 @@ dev_dependencies:
   shared_preferences: ^2.0.0
   geolocator: ^8.2.1
   flutter_fgbg: ^0.1.0
+  fluttertoast: ^8.0.9
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
