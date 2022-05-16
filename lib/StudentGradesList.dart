@@ -33,9 +33,8 @@ class _StudentGradesListState extends State<StudentGradesList> {
             child: ListView.builder(
               itemCount: students.length,
               itemBuilder: (context, index) {
-                final MapEntry<int, String> item = students[index];
                 return ListTile(
-                    title: Text(item, style: TextStyle(fontSize: 22),),
+                    title: Text("item", style: TextStyle(fontSize: 22),),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (
                           context) => StudentQuestionList(),));
