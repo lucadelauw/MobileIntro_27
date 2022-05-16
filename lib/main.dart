@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:mobileintro/AnswerQuestion.dart';
+import 'package:mobileintro/TeacherLogin.dart';
 import 'package:mobileintro/storage.dart';
 
 import 'TeacherHome.dart';
@@ -51,7 +52,7 @@ class MyApp extends StatelessWidget {
             page = const MyHomePage(title: "E-xam");
             break;
           case routeTeacher:
-            page = const TeacherHome();
+            page = const TeacherLogin();
             break;
           case routeStudent:
             page = const StudentHomePage();
@@ -100,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateTeacher() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const TeacherHome()),
+      MaterialPageRoute(builder: (context) => const TeacherLogin()),
     );
   }
 

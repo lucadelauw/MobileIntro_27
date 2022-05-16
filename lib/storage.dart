@@ -27,6 +27,16 @@ class Storage {
 
   Storage._privateConstructor();
 
+  Future<bool> checkTeacherLogin(String email, String password) async {
+    bool toReturn = false;
+    await FirebaseFirestore.instance.collection('teacher').where("email", isEqualTo: email).where("pass", isEqualTo: password).get().then((value) {
+      if (value.size > 0) {
+        toReturn = true;
+      }
+    });
+    return toReturn;
+  }
+
    Future<void> addStudent(int number, String name) async {
      await _init();
 
