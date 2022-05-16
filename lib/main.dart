@@ -195,7 +195,7 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String? dropdownValue;
 
-  Map<int, String> students = <int, String>{};
+  List<Student> students = [];
   void _navigateAnswerQuestion(int studentnumber) {
     Navigator.push(
       context,
@@ -236,9 +236,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       dropdownValue = newValue!;
                     });
                   },
-                  items: students.entries.map((e) => DropdownMenuItem(
-                    value: e.key.toString(),
-                    child: Text(e.key.toString() + ": " + e.value),
+                  items: students.map((e) => DropdownMenuItem(
+                    value: e.number.toString(),
+                    child: Text(e.number.toString() + ": " + e.name),
                   )).toList(),
                   validator: (value) {
                     if (value == null || value == "") {
@@ -258,27 +258,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             )
           ],
         )
-    );
-    return DropdownButton<String>(
-      value: dropdownValue,
-      icon: const Icon(Icons.arrow_downward),
-      elevation: 16,
-      style: const TextStyle(color: Colors.deepPurple),
-      underline: Container(
-        height: 2,
-        color: Colors.deepPurpleAccent,
-      ),
-      onChanged: (String? newValue) {
-        setState(() {
-          dropdownValue = newValue!;
-        });
-      },
-      items: students.entries
-          .map((e) => DropdownMenuItem(
-                value: e.key.toString(),
-                child: Text(e.key.toString() + ": " + e.value),
-              ))
-          .toList(),
     );
   }
 }

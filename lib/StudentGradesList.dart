@@ -10,7 +10,7 @@ class StudentGradesList extends StatefulWidget {
 }
 
 class _StudentGradesListState extends State<StudentGradesList> {
-  Map<int, String> students = {};
+  List<Student> students = [];
 
   @override
   void initState() {

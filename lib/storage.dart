@@ -1,11 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:mobileintro/firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
@@ -19,7 +15,7 @@ class Storage {
   static bool _isSynced = false;
 
   final Geolocator geolocator = Geolocator();
-  var students = <int, String>{};
+  List<StudentWithPassword> students = [];
   var questionsStorage = <QuestionStorage>[];
 
   factory Storage() {
@@ -38,34 +34,31 @@ class Storage {
     return toReturn;
   }
 
-   Future<void> addStudent(int number, String name, String password) async {
+   Future<void> addStudent(StudentWithPassword student) async {
      await _init();
 
-     students[number] = name;
-     FirebaseFirestore.instance.collection('students').doc(number.toString()).set({'name': name, 'number': number, 'password': password});
+     await FirebaseFirestore.instance.collection('students').doc(student.number.toString()).set({'name': student.name, 'number': student.number, 'password': student.password});
   }
 
-  Future<void> addStudents(Map<int, String> students) async {
+  Future<void> addStudents(List<StudentWithPassword> students) async {
     await _init();
 
-    students.addAll(students);
     var batch = FirebaseFirestore.instance.batch();
 
-    students.forEach((number, name) {
-      batch.set(FirebaseFirestore.instance.collection('students').doc(number.toString()), {'name': name, 'number': number});
+    students.forEach((student) {
+      batch.set(FirebaseFirestore.instance.collection('students').doc(student.number.toString()), {'name': student.name, 'number': student.number, 'password': student.password});
     });
 
-    batch.commit();
+    await batch.commit();
   }
 
   Future<void> removeStudent(int number) async {
     await _init();
 
-    students.remove(number);
-    FirebaseFirestore.instance.collection('students').doc(number.toString()).delete();
+    await FirebaseFirestore.instance.collection('students').doc(number.toString()).delete();
   }
 
-  Future<Map<int, String>> getStudents() async {
+  Future<List<Student>> getStudents() async {
     await _init();
 
     return students;
@@ -92,10 +85,10 @@ class Storage {
        log("Initializing firebase/firestore");
        await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
        FirebaseFirestore.instance.collection('students').snapshots().listen((event) async {
-         var tempStudents = <int, String>{};
+         List<StudentWithPassword> tempStudents = [];
          await FirebaseFirestore.instance.collection('students').get().then((value) => {
            value.docs.forEach((element) {
-             tempStudents[element.get('number')] = element.get('name');
+             tempStudents.add(StudentWithPassword(element.get('number'), element.get('name'), element.get('password')));
            }),
            students = tempStudents
          });
@@ -282,4 +275,16 @@ class CodeCorrectionQuestionStorage implements QuestionStorage {
   toQuestionTeacher() {
     return CodeCorrectionQuestion(question, input, answer, "", questionnumber, 0);
   }
+}
+class StudentWithPassword extends Student {
+  String password;
+
+  StudentWithPassword(int number, String name, this.password) : super(number, name);
+}
+
+class Student {
+  int number;
+  String name;
+
+  Student(this.number, this.name);
 }

@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:mobileintro/storage.dart';
 
 class CsvReader {
-  late List<List<dynamic>> employeeData;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -16,10 +15,11 @@ class CsvReader {
   String? _extension="csv";
   FileType _pickingType = FileType.custom;
 
-  Future<Map<int, String>> getStudents() async {
+  Future<List<StudentWithPassword>> getStudents() async {
 
-    var students = <int, String>{};
+    List<StudentWithPassword> students = [];
     try {
+      log("try");
 
       _paths = (await FilePicker.platform.pickFiles(
         type: _pickingType,
@@ -27,12 +27,18 @@ class CsvReader {
         allowedExtensions: (_extension?.isNotEmpty ?? false)
             ? _extension?.replaceAll(' ', '').split(',')
             : null,
+        withData: true
       ))
           ?.files;
-
       final fields = utf8.decode(_paths!.single.bytes!.toList());
       RegExp(r'[0-9]{6};.+').allMatches(fields).forEach((element) {
-        students[int.parse(element.group(0)!.split(";")[0])] = element.group(0)!.split(";")[1];
+        if (element.group(0)!.split(";").length == 2) {
+          students.add(StudentWithPassword(int.parse(element.group(0)!.split(";")[0]), element.group(0)!.split(";")[1], ""));
+        } else if (element.group(0)!.split(";").length == 3) {
+        students.add(StudentWithPassword(int.parse(element.group(0)!.split(";")[0]), element.group(0)!.split(";")[1], element.group(0)!.split(";")[2]));
+        } else {
+          throw("Invalid CSV");
+        }
       });
       
       return students;

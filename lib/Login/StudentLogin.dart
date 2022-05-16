@@ -17,7 +17,7 @@ class _StudentLoginState extends State<StudentLogin> {
   var passwordController= TextEditingController();
   var formkey=GlobalKey<FormState>();
   String? dropdownValue;
-  Map<int, String> students = <int, String>{};
+  List<Student> students = [];
 
   @override
   void initState() {
@@ -55,9 +55,9 @@ class _StudentLoginState extends State<StudentLogin> {
                           dropdownValue = newValue!;
                         });
                       },
-                      items: students.entries.map((e) => DropdownMenuItem(
-                        value: e.key.toString(),
-                        child: Text(e.key.toString() + ": " + e.value),
+                      items: students.map((e) => DropdownMenuItem(
+                        value: e.number.toString(),
+                        child: Text(e.number.toString() + ": " + e.name),
                       )).toList(),
                       validator: (value) {
                         if (value == null || value == "") {
