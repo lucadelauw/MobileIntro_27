@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileintro/firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -68,6 +69,16 @@ class Storage {
     await _init();
 
     return students;
+  }
+
+  Future<bool> checkStudentPassword(int studentnumber, String password) async {
+    bool toReturn = false;
+    await FirebaseFirestore.instance.collection('students').doc(studentnumber.toString()).get().then((value) {
+      if (value.get("password") == password) {
+        toReturn = true;
+      }
+    });
+    return toReturn;
   }
 
   Future<void> _init() async {
