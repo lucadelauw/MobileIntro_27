@@ -31,6 +31,7 @@ class _StudentPageState extends State<StudentPage> {
 
   var studentNumberController = TextEditingController();
   var studentNameController = TextEditingController();
+  var studentPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +115,25 @@ class _StudentPageState extends State<StudentPage> {
                       ),
                       const SizedBox(
                         width: 100,
-                      )
+                      ),
+                      Flexible(child:
+                      TextFormField(
+                        controller: studentPasswordController,
+                        // The validator receives the text that the user has entered.
+                        validator: (value) {
+                          if (false) {
+                            return 'Please enter some text';
+                          }
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                            labelText: 'Password'
+                        ),
+                      ),
+                      ),
+                      const SizedBox(
+                        width: 100,
+                      ),
                     ],
                   ),
                   Padding(
@@ -130,10 +149,13 @@ class _StudentPageState extends State<StudentPage> {
                             const SnackBar(content: Text('Student Added')),
                           );
                           //students[int.parse(studentNumberController.value.text)] = studentNameController.value.text;
-                          Storage().addStudent(int.parse(studentNumberController.value.text), studentNameController.value.text);
+                          Storage().addStudent(int.parse(studentNumberController.value.text), studentNameController.value.text, studentPasswordController.value.text);
                           Storage().getStudents().then((students) => {
                             setState(() {
                               this.students = students;
+                              studentNameController.text = "";
+                              studentNumberController.text = "";
+                              studentPasswordController.text = "";
                             }),
                             setLoading(false)
                           });

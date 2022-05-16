@@ -38,11 +38,11 @@ class Storage {
     return toReturn;
   }
 
-   Future<void> addStudent(int number, String name) async {
+   Future<void> addStudent(int number, String name, String password) async {
      await _init();
 
      students[number] = name;
-     FirebaseFirestore.instance.collection('students').doc(number.toString()).set({'name': name, 'number': number});
+     FirebaseFirestore.instance.collection('students').doc(number.toString()).set({'name': name, 'number': number, 'password': password});
   }
 
   Future<void> addStudents(Map<int, String> students) async {
