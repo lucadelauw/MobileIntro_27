@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:mobileintro/AnswerQuestion.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/StudentPages/AnswerQuestion.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 class StudentLogin extends StatefulWidget {
   const StudentLogin({Key? key}) : super(key: key);

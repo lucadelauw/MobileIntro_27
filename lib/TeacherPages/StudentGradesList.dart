@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobileintro/StudentQuestionList.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/TeacherPages/StudentQuestionList.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 class StudentGradesList extends StatefulWidget {
   const StudentGradesList({Key? key}) : super(key: key);

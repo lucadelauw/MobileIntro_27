@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 abstract class Question {
   int questionnumber;

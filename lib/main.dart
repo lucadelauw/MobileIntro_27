@@ -3,12 +3,12 @@ import 'dart:developer';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
-import 'package:mobileintro/AnswerQuestion.dart';
-import 'package:mobileintro/Login/StudentLogin.dart';
-import 'package:mobileintro/Login/TeacherLogin.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/StudentPages/AnswerQuestion.dart';
+import 'package:mobileintro/StudentPages/StudentLogin.dart';
+import 'package:mobileintro/TeacherPages/TeacherLogin.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
-import 'TeacherHome.dart';
+import 'TeacherPages/TeacherHome.dart';
 
 const routeHome = '/';
 const routeTeacher = '/teacher';

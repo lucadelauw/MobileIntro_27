@@ -2,9 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:mobileintro/csvReader.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
-import 'main.dart';
+import '../main.dart';
 
 class StudentPage extends StatefulWidget {
   const StudentPage({Key? key}) : super(key: key);

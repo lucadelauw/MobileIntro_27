@@ -1,9 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:mobileintro/GradeQuestions.dart';
+import 'package:mobileintro/TeacherPages/GradeQuestions.dart';
 import 'package:mobileintro/Questions.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 class StudentQuestionList extends StatefulWidget {
   final int studentnumber;
@@ -43,7 +43,14 @@ class _StudentQuestionListState extends State<StudentQuestionList> {
                       trailing: Text(questions[index].maxGrade.toString()),
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (
-                            context) => questions[index].getWidget()));
+                            context) =>
+                            Scaffold(
+                              appBar: AppBar(),
+                              body: Padding(
+                                padding: const EdgeInsets.all(30),
+                                child: questions[index].getWidget()
+                            ),
+                        )));
                       }
                   );
                 }

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:mobileintro/CreateQuestion.dart';
-import 'package:mobileintro/ManageQuestion.dart';
-import 'package:mobileintro/ManageStudents.dart';
-import 'package:mobileintro/StudentGradesList.dart';
-import 'package:mobileintro/StudentQuestionList.dart';
+import 'package:mobileintro/TeacherPages/CreateQuestion.dart';
+import 'package:mobileintro/TeacherPages/ManageQuestion.dart';
+import 'package:mobileintro/TeacherPages/ManageStudents.dart';
+import 'package:mobileintro/TeacherPages/StudentGradesList.dart';
+import 'package:mobileintro/TeacherPages/StudentQuestionList.dart';
 import 'package:mobileintro/main.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 
 class TeacherHome extends StatelessWidget{

@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileintro/main.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
-import 'Questions.dart';
+import '../Questions.dart';
 
 class ManageQuestion extends StatefulWidget{
   const ManageQuestion({Key? key}) : super(key: key);

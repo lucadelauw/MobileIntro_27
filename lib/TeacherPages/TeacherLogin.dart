@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobileintro/TeacherHome.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/TeacherPages/TeacherHome.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 class TeacherLogin extends StatefulWidget {
   const TeacherLogin({Key? key}) : super(key: key);
