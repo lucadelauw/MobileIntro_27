@@ -2,9 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:mobileintro/csvReader.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
-import 'main.dart';
+import '../main.dart';
 
 class StudentPage extends StatefulWidget {
   const StudentPage({Key? key}) : super(key: key);
@@ -15,7 +15,7 @@ class StudentPage extends StatefulWidget {
 
 class _StudentPageState extends State<StudentPage> {
 
-  var students = <int, String>{};
+  List<Student> students = [];
   bool loading = true;
 
   @override
@@ -31,6 +31,7 @@ class _StudentPageState extends State<StudentPage> {
 
   var studentNumberController = TextEditingController();
   var studentNameController = TextEditingController();
+  var studentPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -48,13 +49,13 @@ class _StudentPageState extends State<StudentPage> {
               spacing: 8.0, // gap between adjacent chips
               runSpacing: 4.0, // gap between lines
               children: [
-                for (int key in students.keys)
+                for (Student student in students)
                   InputChip(
                     avatar: const Icon(Icons.remove),
-                    label: Text(students[key]!),
-                    onPressed: () {
+                    label: Text(student.name),
+                    onPressed: () async {
                       setLoading(true);
-                      Storage().removeStudent(key);
+                      await Storage().removeStudent(student.number);
                       Storage().getStudents().then((students) => {
                         setState(() {
                           this.students = students;
@@ -114,13 +115,31 @@ class _StudentPageState extends State<StudentPage> {
                       ),
                       const SizedBox(
                         width: 100,
-                      )
+                      ),
+                      Flexible(child:
+                      TextFormField(
+                        controller: studentPasswordController,
+                        // The validator receives the text that the user has entered.
+                        validator: (value) {
+                          if (false) {
+                            return 'Please enter some text';
+                          }
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                            labelText: 'Password'
+                        ),
+                      ),
+                      ),
+                      const SizedBox(
+                        width: 100,
+                      ),
                     ],
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 40.0),
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         // Validate returns true if the form is valid, or false otherwise.
                         if (_formKey.currentState!.validate()) {
                           setLoading(true);
@@ -129,11 +148,13 @@ class _StudentPageState extends State<StudentPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Student Added')),
                           );
-                          //students[int.parse(studentNumberController.value.text)] = studentNameController.value.text;
-                          Storage().addStudent(int.parse(studentNumberController.value.text), studentNameController.value.text);
+                          await Storage().addStudent(StudentWithPassword(int.parse(studentNumberController.value.text), studentNameController.value.text, studentPasswordController.value.text));
                           Storage().getStudents().then((students) => {
                             setState(() {
                               this.students = students;
+                              studentNameController.text = "";
+                              studentNumberController.text = "";
+                              studentPasswordController.text = "";
                             }),
                             setLoading(false)
                           });
@@ -145,16 +166,16 @@ class _StudentPageState extends State<StudentPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 40.0),
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         setLoading(true);
-                        CsvReader().getStudents().then((students) => {
-                          Storage().addStudents(students),
+                        CsvReader().getStudents().then((students) async {
+                          await Storage().addStudents(students);
                           Storage().getStudents().then((students) => {
                             setState(() {
                               this.students = students;
                             }),
                             setLoading(false)
-                          })
+                          });
                         });
                       },
                       child: const Text('Import students'),

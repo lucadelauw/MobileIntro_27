@@ -2,38 +2,34 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 abstract class Question {
-  int studentnumber;
   int questionnumber;
-  String question = '';
-  Question(this.question, this.studentnumber, this.questionnumber);
+  String question;
+  int studentnumber;
+  dynamic currentAnswer;
+  Question(this.questionnumber, this.question, this.studentnumber, this.currentAnswer);
   StatefulWidget getWidget(ObjectKey key);
   StatefulWidget getEditWidget(ObjectKey key);
 }
 
-class CodeCorrectionQuestion implements Question{
-  @override
-  String question;
-  @override
-  int questionnumber;
-  @override
-  int studentnumber;
+class CodeCorrectionQuestion extends Question{
 
   String input = "";
   String answer = "";
-  String? currentAnswer;
 
-  CodeCorrectionQuestion(this.question, this.input, this.answer, this.currentAnswer, this.questionnumber, this.studentnumber);
+
+  CodeCorrectionQuestion(int questionNumber, String question, int studentNumber, this.input, this.answer, String? currentAnswer) :
+    super(questionNumber, question, studentNumber, currentAnswer);
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return CodeCorrectionWidget(key: key, question: CodeCorrectionQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
+    return CodeCorrectionWidget(key: key, question: this);
   }
   @override
   StatefulWidget getEditWidget(ObjectKey key) {
-    return CodeCorrectionWidget(key: key, question: CodeCorrectionQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
+    return CodeCorrectionWidget(key: key, question: this);
   }
 }
 
@@ -93,26 +89,20 @@ class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
   }
 }
 
-class OpenQuestion implements Question {
-  @override
-  String question;
-  @override
-  int questionnumber;
-  @override
-  int studentnumber;
+class OpenQuestion extends Question {
 
   String? answer = "";
-  String? currentAnswer;
 
-  OpenQuestion(this.question, this.answer, this.currentAnswer, this.questionnumber, this.studentnumber);
+  OpenQuestion(int questionNumber, String question, int studentNumber, this.answer, String? currentAnswer) :
+        super(questionNumber, question, studentNumber, currentAnswer);
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer, currentAnswer, questionnumber, studentnumber));
+    return OpenQuestionWidget(key: key, question: this);
   }
   @override
   StatefulWidget getEditWidget(ObjectKey key) {
-    return OpenQuestionWidget(key: key, question: OpenQuestion(question, answer, currentAnswer, questionnumber, studentnumber));
+    return OpenQuestionWidget(key: key, question: this);
   }
 }
 
@@ -169,35 +159,27 @@ class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
   }
 }
 
-class MultipleChoiceQuestion implements Question {
-  @override
-  String question;
-  @override
-  int questionnumber;
-  @override
-  int studentnumber;
+class MultipleChoiceQuestion extends Question {
 
-  List<String> input = [];
-  int answer = 0;
-  int? currentAnswer = -1;
+  List<String> input;
+  int answer;
+  @override
+  covariant int? currentAnswer;
 
-  MultipleChoiceQuestion(this.question, List<dynamic> input, this.answer, this.currentAnswer, this.questionnumber, this.studentnumber) {
-    input.forEach((element) {
-      this.input.add(element.toString());
-    });
-
-    if (answer >= input.length || answer < 0) {
-      throw("MultipleChoiceQuestion answer invalid index");
-    }
+  MultipleChoiceQuestion(int questionNumber, String question, int studentNumber, this.input, this.answer, this.currentAnswer) :
+    super(questionNumber, question, studentNumber, currentAnswer){
+      if (answer >= input.length || answer < 0) {
+        throw("MultipleChoiceQuestion answer invalid index");
+      }
   }
 
   @override
   StatefulWidget getWidget(ObjectKey key) {
-    return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
+    return MultipleChoiceWidget(key: key, question: this);
   }
   @override
   StatefulWidget getEditWidget(ObjectKey key) {
-    return MultipleChoiceWidget(key: key, question: MultipleChoiceQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber));
+    return MultipleChoiceWidget(key: key, question: this);
   }
 }
 

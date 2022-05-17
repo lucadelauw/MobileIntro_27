@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobileintro/StudentQuestionList.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/TeacherPages/StudentQuestionList.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 class StudentGradesList extends StatefulWidget {
   const StudentGradesList({Key? key}) : super(key: key);
@@ -10,7 +10,7 @@ class StudentGradesList extends StatefulWidget {
 }
 
 class _StudentGradesListState extends State<StudentGradesList> {
-  Map<int, String> students = {};
+  List<Student> students = [];
 
   @override
   void initState() {
@@ -34,10 +34,10 @@ class _StudentGradesListState extends State<StudentGradesList> {
               itemCount: students.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                    title: Text("item", style: TextStyle(fontSize: 22),),
+                    title: Text(students[index].name, style: TextStyle(fontSize: 22),),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (
-                          context) => StudentQuestionList(),));
+                          context) => StudentQuestionList(studentnumber: students[index].number),));
                     }
                 );
               }

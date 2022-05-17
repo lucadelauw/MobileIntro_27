@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:mobileintro/Storage/StorageQuestions.dart';
+import 'package:mobileintro/TeacherPages/GradeQuestions.dart';
 import 'package:mobileintro/firebase_options.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'Questions.dart';
+import '../Questions.dart';
 
 class Storage {
 
@@ -18,7 +17,7 @@ class Storage {
   static bool _isSynced = false;
 
   final Geolocator geolocator = Geolocator();
-  var students = <int, String>{};
+  List<StudentWithPassword> students = [];
   var questionsStorage = <QuestionStorage>[];
 
   factory Storage() {
@@ -37,37 +36,55 @@ class Storage {
     return toReturn;
   }
 
-   Future<void> addStudent(int number, String name) async {
+   Future<void> addStudent(StudentWithPassword student) async {
      await _init();
 
-     students[number] = name;
-     FirebaseFirestore.instance.collection('students').doc(number.toString()).set({'name': name, 'number': number});
+     await FirebaseFirestore.instance.collection('students').doc(student.number.toString()).set({'name': student.name, 'number': student.number, 'password': student.password});
   }
 
-  Future<void> addStudents(Map<int, String> students) async {
+  Future<void> addStudents(List<StudentWithPassword> students) async {
     await _init();
 
-    students.addAll(students);
     var batch = FirebaseFirestore.instance.batch();
 
-    students.forEach((number, name) {
-      batch.set(FirebaseFirestore.instance.collection('students').doc(number.toString()), {'name': name, 'number': number});
+    students.forEach((student) {
+      batch.set(FirebaseFirestore.instance.collection('students').doc(student.number.toString()), {'name': student.name, 'number': student.number, 'password': student.password});
     });
 
-    batch.commit();
+    await batch.commit();
   }
 
   Future<void> removeStudent(int number) async {
     await _init();
 
-    students.remove(number);
-    FirebaseFirestore.instance.collection('students').doc(number.toString()).delete();
+    await FirebaseFirestore.instance.collection('students').doc(number.toString()).delete();
   }
 
-  Future<Map<int, String>> getStudents() async {
+  Future<List<Student>> getStudents() async {
     await _init();
 
     return students;
+  }
+
+  Future<List<QuestionGrade>> getGradeQuestions(int studentNumber) async {
+    await _init();
+
+    List<QuestionGrade> questions = [];
+    for (var question in questionsStorage) {
+      questions.add(question.toGradeQuestion(studentNumber));
+    }
+
+    return questions;
+  }
+
+  Future<bool> checkStudentPassword(int studentnumber, String password) async {
+    bool toReturn = false;
+    await FirebaseFirestore.instance.collection('students').doc(studentnumber.toString()).get().then((value) {
+      if (value.get("password") == password) {
+        toReturn = true;
+      }
+    });
+    return toReturn;
   }
 
   Future<void> _init() async {
@@ -81,10 +98,10 @@ class Storage {
        log("Initializing firebase/firestore");
        await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
        FirebaseFirestore.instance.collection('students').snapshots().listen((event) async {
-         var tempStudents = <int, String>{};
+         List<StudentWithPassword> tempStudents = [];
          await FirebaseFirestore.instance.collection('students').get().then((value) => {
            value.docs.forEach((element) {
-             tempStudents[element.get('number')] = element.get('name');
+             tempStudents.add(StudentWithPassword(element.get('number'), element.get('name'), element.get('password')));
            }),
            students = tempStudents
          });
@@ -100,13 +117,13 @@ class Storage {
              answers.add(Map<String, dynamic>.from(answer));
              }
              if(element.get('type') == "Open") {
-             tempQuestions.add(OpenQuestionStorage(element.get('question'), element.get('answer'), answers, i));
+             tempQuestions.add(OpenQuestionStorage(i, element.get('question'), element.get('answer'), answers, double.parse(element.get('maxGrade').toString())));
              }
              if(element.get('type') == "MultipleChoice") {
-             tempQuestions.add(MultipleChoiceQuestionStorage(element.get('question'), List<String>.from(element.get('input')), element.get('answer'), answers, i));
+             tempQuestions.add(MultipleChoiceQuestionStorage(i, element.get('question'), List<String>.from(element.get('input')), element.get('answer'), answers, double.parse(element.get('maxGrade').toString())));
              }
              if(element.get('type') == "CodeCorrection") {
-             tempQuestions.add(CodeCorrectionQuestionStorage(element.get('question'), element.get('input'), element.get('answer'), answers, i));
+             tempQuestions.add(CodeCorrectionQuestionStorage(i, element.get('question'), element.get('input'), element.get('answer'), answers, double.parse(element.get('maxGrade').toString())));
              }
            }
            questionsStorage = tempQuestions;
@@ -130,7 +147,7 @@ class Storage {
   Future<void> setOpenQuestion(int questionNumber, OpenQuestion questionData) async {
     await _init();
 
-    questionsStorage[questionNumber - 1] = OpenQuestionStorage(questionData.question, questionData.answer!, [], questionNumber);
+    //questionsStorage[questionNumber - 1] = OpenQuestionStorage(questionData.question, questionData.answer!, [], questionNumber);
     await FirebaseFirestore.instance.collection('questions').doc(
         questionNumber.toString()).set({'question': questionData.question, 'type': 'Open', 'answer': questionData.answer, 'answers': []});
   }
@@ -142,19 +159,41 @@ class Storage {
         questionNumber.toString()).set({'question': questionData.question, 'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer, 'answers': []});
   }
 
-  setAnswer(int studentnumber, int questionnumber, dynamic answer, int timeGoneToBackground) async {
+  setAnswer(int studentnumber, int questionNumber, dynamic answer, int timeGoneToBackground) async {
      var loc = await _getLocation();
-     var tempanswer = questionsStorage[questionnumber].answers;
+     var tempanswer = questionsStorage[questionNumber].answers;
+     var maxGrade = questionsStorage[questionNumber].maxGrade;
      if (tempanswer.where((element) => element['number'] == studentnumber).isNotEmpty) {
        tempanswer.singleWhere((element) => element['number'] == studentnumber).update('answer', (value) => answer);
        tempanswer.singleWhere((element) => element['number'] == studentnumber).update('location', (value) => GeoPoint(loc!.latitude, loc.longitude));
        tempanswer.singleWhere((element) => element['number'] == studentnumber).update('timesGoneToBackground', (value) {return value + timeGoneToBackground;});
+       tempanswer.singleWhere((element) => element['number'] == studentnumber).update('currentGrade', (value) {return _checkAnswerCorrect(questionNumber, answer) ? maxGrade : 0;});
      } else {
-       tempanswer.add({'number': studentnumber, 'answer': answer, 'location': GeoPoint(loc!.latitude, loc.longitude), 'timesGoneToBackground': timeGoneToBackground});
+       tempanswer.add({
+         'number': studentnumber,
+         'answer': answer,
+         'location': GeoPoint(loc!.latitude, loc.longitude),
+         'timesGoneToBackground': timeGoneToBackground,
+         'currentGrade': _checkAnswerCorrect(questionNumber, answer) ? maxGrade : 0
+       });
      }
-     FirebaseFirestore.instance.collection('questions').doc((questionnumber + 1).toString()).update({
+     FirebaseFirestore.instance.collection('questions').doc((questionNumber + 1).toString()).update({
        'answers': tempanswer,
      });
+  }
+
+  bool _checkAnswerCorrect(int questionNumber, dynamic answer) {
+    if (questionsStorage[questionNumber] is MultipleChoiceQuestionStorage) {
+      if ((questionsStorage[questionNumber] as MultipleChoiceQuestionStorage).answer == answer) {
+        return true;
+      }
+    }
+    if (questionsStorage[questionNumber] is CodeCorrectionQuestionStorage) {
+      if ((questionsStorage[questionNumber] as CodeCorrectionQuestionStorage).answer == answer) {
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<List<Question>> getQuestions(int studentnumber) async {
@@ -182,93 +221,20 @@ class Storage {
      return _isSynced;
   }
 
-  // TODO: getQuestion(int questionNumber)
   Future<Position?> _getLocation() async {
      return await Geolocator.getCurrentPosition();
   }
 }
 
-abstract class QuestionStorage {
-  String question = '';
-  List<Map<String, dynamic>> answers= [];
-  QuestionStorage(this.question, this.answers);
-  int questionnumber = 0;
+class StudentWithPassword extends Student {
+  String password;
 
-  toQuestion(int studentnumber);
-  toQuestionTeacher();
+  StudentWithPassword(int number, String name, this.password) : super(number, name);
 }
 
-class OpenQuestionStorage implements QuestionStorage {
-  @override
-  String question;
-  @override
-  List<Map<String, dynamic>> answers;
-  @override
-  int questionnumber;
-  String answer;
+class Student {
+  int number;
+  String name;
 
-  OpenQuestionStorage(this.question, this.answer, this.answers, this.questionnumber);
-
-  @override
-  toQuestion(int studentnumber) {
-    String? currentAnswer;
-    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
-      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
-    }
-    return OpenQuestion(question, answer, currentAnswer, questionnumber, studentnumber);
-  }
-  @override
-  toQuestionTeacher() {
-    return OpenQuestion(question, answer, "", questionnumber, 0);
-  }
-}
-class MultipleChoiceQuestionStorage implements QuestionStorage {
-  @override
-  String question;
-  @override
-  List<Map<String, dynamic>> answers;
-  @override
-  int questionnumber;
-  int answer;
-  List<String> input;
-
-  MultipleChoiceQuestionStorage(this.question, this.input, this.answer, this.answers, this.questionnumber);
-
-  @override
-  toQuestion(int studentnumber) {
-    int? currentAnswer;
-    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
-      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
-    }
-    return MultipleChoiceQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber);
-  }
-  @override
-  toQuestionTeacher() {
-    return MultipleChoiceQuestion(question, input, answer, 0, questionnumber, 0);
-  }
-}
-class CodeCorrectionQuestionStorage implements QuestionStorage {
-  @override
-  String question;
-  @override
-  List<Map<String, dynamic>> answers;
-  @override
-  int questionnumber;
-  String input;
-  String answer;
-
-  CodeCorrectionQuestionStorage(this.question, this.input, this.answer, this.answers, this.questionnumber);
-
-  @override
-  toQuestion(int studentnumber) {
-    String? currentAnswer;
-    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
-      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
-    }
-    return CodeCorrectionQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber);
-  }
-  @override
-  toQuestionTeacher() {
-    return CodeCorrectionQuestion(question, input, answer, "", questionnumber, 0);
-  }
+  Student(this.number, this.name);
 }

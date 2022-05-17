@@ -3,11 +3,12 @@ import 'dart:developer';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
-import 'package:mobileintro/AnswerQuestion.dart';
-import 'package:mobileintro/TeacherLogin.dart';
-import 'package:mobileintro/storage.dart';
+import 'package:mobileintro/StudentPages/AnswerQuestion.dart';
+import 'package:mobileintro/StudentPages/StudentLogin.dart';
+import 'package:mobileintro/TeacherPages/TeacherLogin.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
-import 'TeacherHome.dart';
+import 'TeacherPages/TeacherHome.dart';
 
 const routeHome = '/';
 const routeTeacher = '/teacher';
@@ -55,7 +56,7 @@ class MyApp extends StatelessWidget {
             page = const TeacherLogin();
             break;
           case routeStudent:
-            page = const StudentHomePage();
+            page = const StudentLogin();
             break;
           case routeManageStudents:
             page = const MyHomePage(title: "E-xam");
@@ -108,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateStudent() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const StudentHomePage()),
+      MaterialPageRoute(builder: (context) => const StudentLogin()),
     );
   }
 
@@ -194,7 +195,7 @@ class MyStatefulWidget extends StatefulWidget {
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   String? dropdownValue;
 
-  Map<int, String> students = <int, String>{};
+  List<Student> students = [];
   void _navigateAnswerQuestion(int studentnumber) {
     Navigator.push(
       context,
@@ -235,9 +236,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       dropdownValue = newValue!;
                     });
                   },
-                  items: students.entries.map((e) => DropdownMenuItem(
-                    value: e.key.toString(),
-                    child: Text(e.key.toString() + ": " + e.value),
+                  items: students.map((e) => DropdownMenuItem(
+                    value: e.number.toString(),
+                    child: Text(e.number.toString() + ": " + e.name),
                   )).toList(),
                   validator: (value) {
                     if (value == null || value == "") {
@@ -257,27 +258,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             )
           ],
         )
-    );
-    return DropdownButton<String>(
-      value: dropdownValue,
-      icon: const Icon(Icons.arrow_downward),
-      elevation: 16,
-      style: const TextStyle(color: Colors.deepPurple),
-      underline: Container(
-        height: 2,
-        color: Colors.deepPurpleAccent,
-      ),
-      onChanged: (String? newValue) {
-        setState(() {
-          dropdownValue = newValue!;
-        });
-      },
-      items: students.entries
-          .map((e) => DropdownMenuItem(
-                value: e.key.toString(),
-                child: Text(e.key.toString() + ": " + e.value),
-              ))
-          .toList(),
     );
   }
 }
