@@ -34,10 +34,10 @@ class _StudentGradesListState extends State<StudentGradesList> {
               itemCount: students.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                    title: Text("item", style: TextStyle(fontSize: 22),),
+                    title: Text(students[index].name, style: TextStyle(fontSize: 22),),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (
-                          context) => StudentQuestionList(),));
+                          context) => StudentQuestionList(studentnumber: students[index].number),));
                     }
                 );
               }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:mobileintro/GradeQuestions.dart';
 import 'package:mobileintro/firebase_options.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -64,6 +65,19 @@ class Storage {
     return students;
   }
 
+  Future<List<QuestionGrade>> getGradeQuestions(int studentNumber) async {
+    await _init();
+
+    List<QuestionGrade> questions = [];
+    log("no");
+    for (QuestionStorage question in questionsStorage) {
+      log("1");
+      questions.add(question.toGradeQuestion(studentNumber));
+    }
+
+    return questions;
+  }
+
   Future<bool> checkStudentPassword(int studentnumber, String password) async {
     bool toReturn = false;
     await FirebaseFirestore.instance.collection('students').doc(studentnumber.toString()).get().then((value) {
@@ -104,13 +118,13 @@ class Storage {
              answers.add(Map<String, dynamic>.from(answer));
              }
              if(element.get('type') == "Open") {
-             tempQuestions.add(OpenQuestionStorage(element.get('question'), element.get('answer'), answers, i));
+             tempQuestions.add(OpenQuestionStorage(i, element.get('question'), element.get('answer'), answers, double.parse(element.get('maxGrade').toString())));
              }
              if(element.get('type') == "MultipleChoice") {
-             tempQuestions.add(MultipleChoiceQuestionStorage(element.get('question'), List<String>.from(element.get('input')), element.get('answer'), answers, i));
+             tempQuestions.add(MultipleChoiceQuestionStorage(i, element.get('question'), List<String>.from(element.get('input')), element.get('answer'), answers, double.parse(element.get('maxGrade').toString())));
              }
              if(element.get('type') == "CodeCorrection") {
-             tempQuestions.add(CodeCorrectionQuestionStorage(element.get('question'), element.get('input'), element.get('answer'), answers, i));
+             tempQuestions.add(CodeCorrectionQuestionStorage(i, element.get('question'), element.get('input'), element.get('answer'), answers, double.parse(element.get('maxGrade').toString())));
              }
            }
            questionsStorage = tempQuestions;
@@ -134,7 +148,7 @@ class Storage {
   Future<void> setOpenQuestion(int questionNumber, OpenQuestion questionData) async {
     await _init();
 
-    questionsStorage[questionNumber - 1] = OpenQuestionStorage(questionData.question, questionData.answer!, [], questionNumber);
+    //questionsStorage[questionNumber - 1] = OpenQuestionStorage(questionData.question, questionData.answer!, [], questionNumber);
     await FirebaseFirestore.instance.collection('questions').doc(
         questionNumber.toString()).set({'question': questionData.question, 'type': 'Open', 'answer': questionData.answer, 'answers': []});
   }
@@ -186,94 +200,110 @@ class Storage {
      return _isSynced;
   }
 
-  // TODO: getQuestion(int questionNumber)
   Future<Position?> _getLocation() async {
      return await Geolocator.getCurrentPosition();
   }
 }
 
 abstract class QuestionStorage {
-  String question = '';
+  int questionNumber;
+  String question;
   List<Map<String, dynamic>> answers= [];
-  QuestionStorage(this.question, this.answers);
-  int questionnumber = 0;
+  double maxGrade;
 
-  toQuestion(int studentnumber);
+  QuestionStorage(this.questionNumber, this.question, this.answers, this.maxGrade);
+
+  toQuestion(int studentNumber);
   toQuestionTeacher();
+  QuestionGrade toGradeQuestion(int studentNumber);
 }
 
-class OpenQuestionStorage implements QuestionStorage {
-  @override
-  String question;
-  @override
-  List<Map<String, dynamic>> answers;
-  @override
-  int questionnumber;
+class OpenQuestionStorage extends QuestionStorage {
   String answer;
 
-  OpenQuestionStorage(this.question, this.answer, this.answers, this.questionnumber);
+  OpenQuestionStorage(int questionNumber, String question, this.answer, List<Map<String, dynamic>> answers, double maxGrade) :
+    super(questionNumber, question, answers, maxGrade);
 
   @override
-  toQuestion(int studentnumber) {
+  toQuestion(int studentNumber) {
     String? currentAnswer;
-    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
-      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
+    if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
     }
-    return OpenQuestion(question, answer, currentAnswer, questionnumber, studentnumber);
+    return OpenQuestion(questionNumber, question, studentNumber, answer, currentAnswer);
   }
   @override
   toQuestionTeacher() {
-    return OpenQuestion(question, answer, "", questionnumber, 0);
+    return OpenQuestion(questionNumber, question, 0, answer, "");
+  }
+
+  @override
+  QuestionGrade toGradeQuestion(int studentNumber) {
+    String? currentAnswer;
+    if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
+    }
+    return OpenGrade(question, answer, currentAnswer, maxGrade);
   }
 }
-class MultipleChoiceQuestionStorage implements QuestionStorage {
-  @override
-  String question;
-  @override
-  List<Map<String, dynamic>> answers;
-  @override
-  int questionnumber;
-  int answer;
+class MultipleChoiceQuestionStorage extends QuestionStorage {
+
   List<String> input;
+  int answer;
 
-  MultipleChoiceQuestionStorage(this.question, this.input, this.answer, this.answers, this.questionnumber);
+  MultipleChoiceQuestionStorage(int questionNumber, String question, this.input, this.answer, List<Map<String, dynamic>> answers, double maxGrade) :
+        super(questionNumber, question, answers, maxGrade);
 
   @override
-  toQuestion(int studentnumber) {
+  toQuestion(int studentNumber) {
     int? currentAnswer;
-    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
-      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
+    if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
     }
-    return MultipleChoiceQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber);
+    return MultipleChoiceQuestion(questionNumber, question, studentNumber, input, answer, currentAnswer);
   }
   @override
   toQuestionTeacher() {
-    return MultipleChoiceQuestion(question, input, answer, 0, questionnumber, 0);
+    return MultipleChoiceQuestion(questionNumber, question, 0, input, answer, 0);
+  }
+
+  @override
+  QuestionGrade toGradeQuestion(int studentNumber) {
+    int? currentAnswer;
+    if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
+    }
+    return MultipleChoiceGrade(question, input, answer, currentAnswer, maxGrade);
   }
 }
-class CodeCorrectionQuestionStorage implements QuestionStorage {
-  @override
-  String question;
-  @override
-  List<Map<String, dynamic>> answers;
-  @override
-  int questionnumber;
+class CodeCorrectionQuestionStorage extends QuestionStorage {
+
   String input;
   String answer;
 
-  CodeCorrectionQuestionStorage(this.question, this.input, this.answer, this.answers, this.questionnumber);
+  CodeCorrectionQuestionStorage(int questionNumber, String question, this.input, this.answer, List<Map<String, dynamic>> answers, double maxGrade) :
+        super(questionNumber, question, answers, maxGrade);
 
   @override
-  toQuestion(int studentnumber) {
+  toQuestion(int studentNumber) {
     String? currentAnswer;
-    if (answers.where((element) => (element['number'] == studentnumber)).isNotEmpty) {
-      currentAnswer = answers.singleWhere((element) => (element['number'] == studentnumber))['answer'];
+    if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
     }
-    return CodeCorrectionQuestion(question, input, answer, currentAnswer, questionnumber, studentnumber);
+    return CodeCorrectionQuestion(questionNumber, question, studentNumber, input, answer, currentAnswer);
   }
   @override
   toQuestionTeacher() {
-    return CodeCorrectionQuestion(question, input, answer, "", questionnumber, 0);
+    return CodeCorrectionQuestion(questionNumber, question, 0, input, answer, "");
+  }
+
+  @override
+  QuestionGrade toGradeQuestion(int studentNumber) {
+    String? currentAnswer;
+    if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
+      currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
+    }
+    return CodeCorrectionGrade(question, input, answer, currentAnswer, maxGrade);
   }
 }
 class StudentWithPassword extends Student {

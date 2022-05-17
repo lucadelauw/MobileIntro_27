@@ -1,24 +1,56 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mobileintro/GradeQuestions.dart';
+import 'package:mobileintro/Questions.dart';
+import 'package:mobileintro/storage.dart';
 
 class StudentQuestionList extends StatefulWidget {
-  const StudentQuestionList({Key? key}) : super(key: key);
+  final int studentnumber;
+  const StudentQuestionList({Key? key, required this.studentnumber}) : super(key: key);
 
   @override
   _StudentQuestionListState createState() => _StudentQuestionListState();
 }
 
 class _StudentQuestionListState extends State<StudentQuestionList> {
+
+  List<QuestionGrade> questions = [];
+
+  @override
+  void initState() {
+    Storage().getGradeQuestions(widget.studentnumber).then((value) {
+      setState(() {
+        questions = value;
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Column(children: [
-        Text("Omer",style: TextStyle(fontSize: 22),),
-        SizedBox(height: 25,),
-        ListTile(title:Text("Flutter 1",style: TextStyle(fontSize: 22),) ,trailing: Text("18/20",style: TextStyle(fontSize: 25),),),
-        ListTile(title:Text(" math 1",style: TextStyle(fontSize: 22),) ,trailing: Text("16/20",style: TextStyle(fontSize: 25),),),
-        ListTile(title:Text("exam 1",style: TextStyle(fontSize: 22),) ,trailing: Text("20/20",style: TextStyle(fontSize: 25),),),
-      ]),
+      body: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Column(children: [
+          Expanded(
+            child: ListView.builder(
+                itemCount: questions.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                      title: Text(questions[index].question, style: TextStyle(fontSize: 22),),
+                      trailing: Text(questions[index].maxGrade.toString()),
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (
+                            context) => questions[index].getWidget()));
+                      }
+                  );
+                }
+            ),
+          )
+        ]),
+      ),
     );
   }
 }

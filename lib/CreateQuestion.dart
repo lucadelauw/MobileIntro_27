@@ -15,39 +15,39 @@ class CreateQuestion extends StatefulWidget {
 }
 
 class _CreateQuestionState extends State<CreateQuestion> {
-  int questionnumber = 1;
+  int questionNumber = 1;
 
   setQuestion() {
-    switch (val) {
+    switch (questionType) {
       case "Open":
-        Storage().setOpenQuestion(questionnumber, OpenQuestion(q.text, q_a.text, "", questionnumber, 0));
+        Storage().setOpenQuestion(questionNumber, OpenQuestion(questionNumber, questionController.text, 0, questionAnswerController.text, ""));
         break;
       case "CodeCorrection":
-        Storage().setCodeCorrectionQuestion(questionnumber, CodeCorrectionQuestion(q.text, "", q_a.text, "", questionnumber, 0));
+        Storage().setCodeCorrectionQuestion(questionNumber, CodeCorrectionQuestion(questionNumber, questionController.text, 0, "input", questionAnswerController.text, ""));
         break;
       case "MultipleChoice":
-        Storage().setMultipleChoiceQuestion(questionnumber, MultipleChoiceQuestion(q.text, [ch_1.text, ch_2.text, ch_3.text], int.parse(q_a.text), 0, questionnumber, 0));
+        Storage().setMultipleChoiceQuestion(questionNumber, MultipleChoiceQuestion(questionNumber, questionController.text, 0, [option1Controller.text, option2Controller.text, option3Controller.text], int.parse(questionAnswerController.text), 0));
         break;
     }
-    questionnumber++;
-    q.clear();
-    q_g.clear();
-    q_a.clear();
-    ch_1.clear();
-    ch_2.clear();
-    ch_3.clear();
-    val=null;
+    questionNumber++;
+    questionController.clear();
+    questionGradeController.clear();
+    questionAnswerController.clear();
+    option1Controller.clear();
+    option2Controller.clear();
+    option3Controller.clear();
+    questionType=null;
   }
 
 
-  String? val;
-  var q = TextEditingController();
+  String? questionType;
+  var questionController = TextEditingController();
   //var q_n = TextEditingController();
-  var q_a = TextEditingController();
-  var q_g = TextEditingController();
-  var ch_1 = TextEditingController();
-  var ch_2 = TextEditingController();
-  var ch_3 = TextEditingController();
+  var questionAnswerController = TextEditingController();
+  var questionGradeController = TextEditingController();
+  var option1Controller = TextEditingController();
+  var option2Controller = TextEditingController();
+  var option3Controller = TextEditingController();
   var formkey = GlobalKey<FormState>();
 
   @override
@@ -75,7 +75,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                       return "mustn't be empty";
                     }
                   },
-                  controller: q,
+                  controller: questionController,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
                 ),
@@ -86,7 +86,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                   isExpanded: true,
                   borderRadius: BorderRadius.circular(12),
                   hint: Text("Question Type"),
-                  value: val,
+                  value: questionType,
                   items: [
                     DropdownMenuItem(
                       child: Text("open"),
@@ -103,14 +103,14 @@ class _CreateQuestionState extends State<CreateQuestion> {
                   ],
                   onChanged: (v) {
                     setState(() {
-                      val = v;
+                      questionType = v;
                     });
                   },
                 ),
                 SizedBox(
                   height: 17,
                 ),
-                if (val == "MultipleChoice")
+                if (questionType == "MultipleChoice")
                   Row(children: [
                     Expanded(
                       child: Padding(
@@ -121,7 +121,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                               return "mustn't be empty";
                             }
                           },
-                          controller: ch_1,
+                          controller: option1Controller,
                           decoration: InputDecoration(hintText: "Chose 1"),
                         ),
                       ),
@@ -135,7 +135,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                               return "mustn't be empty";
                             }
                           },
-                          controller: ch_2,
+                          controller: option2Controller,
                           decoration: InputDecoration(hintText: "Chose 2"),
                         ),
                       ),
@@ -149,7 +149,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                               return "mustn't be empty";
                             }
                           },
-                          controller: ch_3,
+                          controller: option3Controller,
                           decoration: InputDecoration(hintText: "Chose 3"),
                         ),
                       ),
@@ -171,7 +171,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                       return "mustn't be empty";
                     }
                   },
-                  controller: q_g,
+                  controller: questionGradeController,
                   keyboardType: TextInputType.number,
                 ),
                 SizedBox(
@@ -190,7 +190,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                       return "mustn't be empty";
                     }
                   },
-                  controller: q_a,
+                  controller: questionAnswerController,
                   keyboardType: TextInputType.multiline,
                   minLines: null,
                 ),
