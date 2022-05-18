@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
@@ -18,6 +19,18 @@ const routeManageQuestions = '/teacher/questions';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  Firebase.initializeApp(
+    options:  FirebaseOptions(
+      apiKey: 'AIzaSyCJE7csuHKuewzVgAHFnDfZ1waaqz0gC_g',
+      appId: '1:800562369400:web:fc7b80cb215bf306936e8d',
+      messagingSenderId: '800562369400',
+      projectId: 'mobile-intro-27',
+      authDomain: 'mobile-intro-27.firebaseapp.com',
+      storageBucket: 'mobile-intro-27.appspot.com',
+      measurementId: 'G-D8T5Z7XYXD',
+    )
+
+  );
   SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
       .then((_) {
     runApp(new MyApp());
@@ -43,7 +56,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.blue,
       ),
       //home: const MyHomePage(title: 'E-xam'),
       onGenerateRoute: (settings) {
@@ -122,52 +135,55 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return MyScaffold(
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Row(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              height: 150,
-              width: 150,
-              child: TextButton(
-                onPressed: _navigateTeacher,
-                child: const Text('Teacher'),
-                style: TextButton.styleFrom(
-                    primary: Colors.white, backgroundColor: Colors.red),
+      body: Stack(children: [
+        Container(height: double.infinity,width: double.infinity, decoration:  BoxDecoration(image: DecorationImage(fit: BoxFit.cover, image: AssetImage("images/background.PNG") )),),
+        Center(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Column(
+            // Column is also a layout widget. It takes a list of children and
+            // arranges them vertically. By default, it sizes itself to fit its
+            // children horizontally, and tries to be as tall as its parent.
+            //
+            // Invoke "debug painting" (press "p" in the console, choose the
+            // "Toggle Debug Paint" action from the Flutter Inspector in Android
+            // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+            // to see the wireframe for each widget.
+            //
+            // Column has various properties to control how it sizes itself and
+            // how it positions its children. Here we use mainAxisAlignment to
+            // center the children vertically; the main axis here is the vertical
+            // axis because Columns are vertical (the cross axis would be
+            // horizontal).
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(
+                height: 100,
+                width: 900,
+                child: TextButton(
+                  onPressed: _navigateTeacher,
+                  child: const Text('Teacher',style: TextStyle(fontSize: 26),),
+                  style: TextButton.styleFrom(
+                      primary: Colors.white, backgroundColor: Colors.blue),
+                ),
               ),
-            ),
-            SizedBox(
-              width: 100,
-            ),
-            SizedBox(
-              height: 150,
-              width: 150,
-              child: TextButton(
-                onPressed: _navigateStudent,
-                child: const Text('Student'),
-                style: TextButton.styleFrom(
-                    primary: Colors.white, backgroundColor: Colors.red),
+              SizedBox(
+                height: 100,
               ),
-            ),
-          ],
+              SizedBox(
+                height: 100,
+                width: 900,
+                child: TextButton(
+                  onPressed: _navigateStudent,
+                  child: const Text('Student',style: TextStyle(fontSize: 26),),
+                  style: TextButton.styleFrom(
+                      primary: Colors.white, backgroundColor: Colors.blue),
+                ),
+              ),
+            ],
+          ),
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ],) // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

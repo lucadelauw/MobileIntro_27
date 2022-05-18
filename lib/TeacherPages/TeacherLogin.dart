@@ -29,15 +29,16 @@ class _TeacherLoginState extends State<TeacherLogin> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Email:",
-                      style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
+                    // Text(
+                    //   "Email:",
+                    //   style:
+                    //   TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    // ),
+                    // SizedBox(
+                    //   height: 5,
+                    // ),
                     TextFormField(
+                      decoration: InputDecoration(labelText:"Email" , border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey), borderRadius: BorderRadius.circular(10))),
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "mustn't be empty";
@@ -49,15 +50,16 @@ class _TeacherLoginState extends State<TeacherLogin> {
                     SizedBox(
                       height: 18,
                     ),
-                    Text(
-                      "Password:",
-                      style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
+                    // Text(
+                    //   "Password:",
+                    //   style:
+                    //   TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    // ),
+                    // SizedBox(
+                    //   height: 5,
+                    // ),
                     TextFormField(
+
                       validator: (value) {
                         if (value!.isEmpty) {
                           return "mustn't be empty";
@@ -66,6 +68,9 @@ class _TeacherLoginState extends State<TeacherLogin> {
                       controller: pas,
                       obscureText: showpass,
                       decoration: InputDecoration(
+                          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey), borderRadius: BorderRadius.circular(10)),
+                          labelText:"Password" ,
+
                           suffixIcon: IconButton(
                               onPressed: () {
                                 setState(() {
@@ -107,7 +112,7 @@ class _TeacherLoginState extends State<TeacherLogin> {
                         ),
                         height: 50,
                         decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: Colors.blue,
                             borderRadius: BorderRadius.circular(20)),
                       ),
                     )

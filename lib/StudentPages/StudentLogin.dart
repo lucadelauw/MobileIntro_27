@@ -45,7 +45,16 @@ class _StudentLoginState extends State<StudentLogin> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                   // Text("Username:",style: TextStyle(color: Colors.black,fontSize: 20,fontWeight: FontWeight.bold),),
+
+                  //  SizedBox(height: 15,),
+
+                          SizedBox(height: 250,),
                     DropdownButtonFormField<String>(
+                          hint:   Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text("Username:",style: TextStyle(color: Colors.grey,fontSize: 15,fontWeight: FontWeight.bold),),
+                          ) ,
                       value: dropdownValue,
                       icon: const Icon(Icons.arrow_downward),
                       elevation: 16,
@@ -69,17 +78,14 @@ class _StudentLoginState extends State<StudentLogin> {
                     SizedBox(
                       height: 18,
                     ),
-                    Text(
-                      "Password:",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
+
                     TextFormField(
+
                       controller: passwordController,
                       obscureText: showpass,
                       decoration: InputDecoration(
+                          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.grey), borderRadius: BorderRadius.circular(10)),
+                          labelText:"Password" ,
                           suffixIcon: IconButton(
                               onPressed: () {
                                 setState(() {
@@ -110,7 +116,7 @@ class _StudentLoginState extends State<StudentLogin> {
                         height: 50,
                         decoration:
                         BoxDecoration(
-                            color: Colors.red,
+                            color: Colors.blue,
                             borderRadius: BorderRadius.circular(20)),
                       ),
                     )
@@ -126,7 +132,7 @@ class _StudentLoginState extends State<StudentLogin> {
     Storage().checkStudentPassword(studentnumber, password).then((value) => {
       if (value == false) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Wrong password")))
+        content: Text("Wrong  password")))
       } else {
         Navigator.push(context, MaterialPageRoute(builder: (context) => AnswerQuestion(studentnumber: studentnumber),))
       }
