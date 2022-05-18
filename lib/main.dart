@@ -19,18 +19,6 @@ const routeManageQuestions = '/teacher/questions';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(
-    options:  FirebaseOptions(
-      apiKey: 'AIzaSyCJE7csuHKuewzVgAHFnDfZ1waaqz0gC_g',
-      appId: '1:800562369400:web:fc7b80cb215bf306936e8d',
-      messagingSenderId: '800562369400',
-      projectId: 'mobile-intro-27',
-      authDomain: 'mobile-intro-27.firebaseapp.com',
-      storageBucket: 'mobile-intro-27.appspot.com',
-      measurementId: 'G-D8T5Z7XYXD',
-    )
-
-  );
   SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
       .then((_) {
     runApp(new MyApp());

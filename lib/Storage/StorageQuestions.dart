@@ -41,7 +41,7 @@ class OpenQuestionStorage extends QuestionStorage {
       currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
       currentGrade = double.parse(answers.singleWhere((element) => (element['number'] == studentNumber))['currentGrade'].toString());
     }
-    return OpenGrade(question, answer, currentAnswer, maxGrade, currentGrade);
+    return OpenGrade(questionNumber, studentNumber, question, answer, currentAnswer, maxGrade, currentGrade);
   }
 }
 class MultipleChoiceQuestionStorage extends QuestionStorage {
@@ -73,7 +73,7 @@ class MultipleChoiceQuestionStorage extends QuestionStorage {
       currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
       currentGrade = double.parse(answers.singleWhere((element) => (element['number'] == studentNumber))['currentGrade'].toString());
     }
-    return MultipleChoiceGrade(question, input, answer, currentAnswer, maxGrade, currentGrade);
+    return MultipleChoiceGrade(questionNumber, studentNumber, question, input, answer, currentAnswer, maxGrade, currentGrade);
   }
 }
 class CodeCorrectionQuestionStorage extends QuestionStorage {
@@ -105,6 +105,6 @@ class CodeCorrectionQuestionStorage extends QuestionStorage {
       currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
       currentGrade = double.parse(answers.singleWhere((element) => (element['number'] == studentNumber))['currentGrade'].toString());
     }
-    return CodeCorrectionGrade(question, input, answer, currentAnswer, maxGrade, currentGrade);
+    return CodeCorrectionGrade(questionNumber, studentNumber, question, input, answer, currentAnswer, maxGrade, currentGrade);
   }
 }

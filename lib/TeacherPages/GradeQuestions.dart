@@ -1,14 +1,19 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobileintro/Storage/storage.dart';
 
 abstract class QuestionGrade {
+  int questionNumber;
+  int studentNumber;
   String question;
   dynamic answer;
   dynamic currentAnswer;
   double maxGrade;
   double currentGrade;
 
-  QuestionGrade(this.question, this.answer, this.currentAnswer, this.maxGrade,
+  QuestionGrade(this.questionNumber, this.studentNumber, this.question, this.answer, this.currentAnswer, this.maxGrade,
       this.currentGrade);
 
   StatefulWidget getWidget();
@@ -17,9 +22,9 @@ abstract class QuestionGrade {
 class CodeCorrectionGrade extends QuestionGrade {
   String input;
 
-  CodeCorrectionGrade(String question, this.input, String answer,
+  CodeCorrectionGrade(int questionNumber, int studentNumber, String question, this.input, String answer,
       String? currentAnswer, double maxGrade, double currentGrade)
-      : super(question, answer, currentAnswer, maxGrade, currentGrade);
+      : super(questionNumber, studentNumber, question, answer, currentAnswer, maxGrade, currentGrade);
 
   @override
   StatefulWidget getWidget() {
@@ -40,9 +45,12 @@ class CodeCorrectionGradeWidget extends StatefulWidget {
 
 class _CodeCorrectionGradeWidgetState extends State<CodeCorrectionGradeWidget> {
   String initvalue = "";
+  TextEditingController newScoreController = TextEditingController();
+  final _newScoreForm = GlobalKey<FormState>();
 
   @override
   void initState() {
+    newScoreController.text = widget.question.currentGrade.toString();
     widget.question.currentAnswer == null
         ? initvalue = widget.question.input
         : initvalue = widget.question.currentAnswer!;
@@ -52,18 +60,74 @@ class _CodeCorrectionGradeWidgetState extends State<CodeCorrectionGradeWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(widget.question.question),
-        TextFormField(
-          enabled: false,
-          initialValue: initvalue,
-          decoration: const InputDecoration(labelText: 'Answer'),
-          onChanged: (value) => {widget.question.currentAnswer = value},
-        ),
-      ],
-    );
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(widget.question.question),
+          TextFormField(
+            enabled: false,
+            initialValue: widget.question.currentAnswer,
+            decoration: const InputDecoration(labelText: 'Answer'),
+            onChanged: (value) => {widget.question.currentAnswer = value},
+          ),
+          Row(
+            children: [
+              Container(
+                width: 200,
+                child: Form(
+                  key: _newScoreForm,
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    controller: newScoreController ,
+                    decoration: const InputDecoration(labelText: 'New Score'),
+                    validator: (value) {
+                      double? temp = double.tryParse(value!);
+                      if (temp == null) {
+                        return "Not a valid number";
+                      }
+                      if (temp > widget.question.maxGrade) {
+                        return "Can't be bigger than maximum grade";
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {_newScoreForm.currentState!.validate();},
+                  ),
+                ),
+              ),
+              Expanded(
+                  child: Text(" / " + widget.question.maxGrade.toString())
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    if (_newScoreForm.currentState!.validate()) {
+                      Storage().setNewScore(widget.question.questionNumber, widget.question.studentNumber, double.parse(newScoreController.text));
+                      setState(() {
+                        widget.question.currentGrade = double.parse(newScoreController.text);
+                      });
+                    }
+                  },
+                  child: Container(
+                    child: const Center(
+                      child: Text(
+                        "Set Score",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    margin: const EdgeInsets.all(18),
+                    height: 50,
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(15)),
+                  ),
+                ),
+              ),
+            ],
+          )
+        ]);
   }
 
   @override
@@ -75,9 +139,9 @@ class _CodeCorrectionGradeWidgetState extends State<CodeCorrectionGradeWidget> {
 class MultipleChoiceGrade extends QuestionGrade {
   List<String> input;
 
-  MultipleChoiceGrade(String question, this.input, int answer,
+  MultipleChoiceGrade(int questionNumber, int studentNumber, String question, this.input, int answer,
       int? currentAnswer, double maxGrade, double currentGrade)
-      : super(question, answer, currentAnswer, maxGrade, currentGrade);
+      : super(questionNumber, studentNumber, question, answer, currentAnswer, maxGrade, currentGrade);
 
   @override
   StatefulWidget getWidget() {
@@ -131,9 +195,9 @@ class _MultipleChoiceGradeWidgetState extends State<MultipleChoiceGradeWidget> {
 }
 
 class OpenGrade extends QuestionGrade {
-  OpenGrade(String question, String? answer, String? currentAnswer,
+  OpenGrade(int questionNumber, int studentNumber, String question, String? answer, String? currentAnswer,
       double maxGrade, double currentGrade)
-      : super(question, answer, currentAnswer, maxGrade, currentGrade);
+      : super(questionNumber, studentNumber, question, answer, currentAnswer, maxGrade, currentGrade);
 
   @override
   StatefulWidget getWidget() {
@@ -151,8 +215,13 @@ class OpenGradeWidget extends StatefulWidget {
 }
 
 class _OpenGradeWidgetState extends State<OpenGradeWidget> {
+
+  TextEditingController newScoreController = TextEditingController();
+  final _newScoreForm = GlobalKey<FormState>();
+
   @override
   void initState() {
+    newScoreController.text = widget.question.currentGrade.toString();
     super.initState();
   }
 
@@ -171,34 +240,45 @@ class _OpenGradeWidgetState extends State<OpenGradeWidget> {
           ),
           Row(
             children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {},
-                  child: Container(
-                    child: const Center(
-                      child: Text(
-                        "Incorrect",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    height: 50,
-                    margin: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(15)),
+              Container(
+                width: 200,
+                child: Form(
+                  key: _newScoreForm,
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    controller: newScoreController ,
+                    decoration: const InputDecoration(labelText: 'New Score'),
+                    validator: (value) {
+                      double? temp = double.tryParse(value!);
+                      if (temp == null) {
+                        return "Not a valid number";
+                      }
+                      if (temp > widget.question.maxGrade) {
+                        return "Can't be bigger than maximum grade";
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {_newScoreForm.currentState!.validate();},
                   ),
                 ),
               ),
               Expanded(
+                child: Text(" / " + widget.question.maxGrade.toString())
+              ),
+              Expanded(
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    if (_newScoreForm.currentState!.validate()) {
+                      setState(() {
+                        widget.question.currentGrade = double.parse(newScoreController.text);
+                      });
+                      Storage().setNewScore(widget.question.questionNumber, widget.question.studentNumber, double.parse(newScoreController.text));
+                    }
+                  },
                   child: Container(
                     child: const Center(
                       child: Text(
-                        "Correct",
+                        "Set Score",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -208,7 +288,7 @@ class _OpenGradeWidgetState extends State<OpenGradeWidget> {
                     margin: const EdgeInsets.all(18),
                     height: 50,
                     decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: Colors.blue,
                         borderRadius: BorderRadius.circular(15)),
                   ),
                 ),

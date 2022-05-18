@@ -196,6 +196,24 @@ class Storage {
     return false;
   }
 
+  Future<void> setNewScore(int questionNumber, int studentNumber, double newScore) async {
+    var tempanswer = questionsStorage[questionNumber].answers;
+    if (tempanswer.where((element) => element['number'] == studentNumber).isNotEmpty) {
+      tempanswer.singleWhere((element) => element['number'] == studentNumber).update('currentGrade', (value) => newScore);
+    } else {
+      tempanswer.add({
+        'number': studentNumber,
+        'answer': null,
+        'location': null,
+        'timesGoneToBackground': 0,
+        'currentGrade': newScore
+      });
+    }
+    FirebaseFirestore.instance.collection('questions').doc((questionNumber + 1).toString()).update({
+      'answers': tempanswer,
+    });
+  }
+
   Future<List<Question>> getQuestions(int studentnumber) async {
     await _init();
 

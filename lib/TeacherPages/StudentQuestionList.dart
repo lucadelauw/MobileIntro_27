@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -15,23 +16,14 @@ class StudentQuestionList extends StatefulWidget {
 
 class _StudentQuestionListState extends State<StudentQuestionList> {
 
+  Timer? timer;
   List<QuestionGrade> questions = [];
   double currentGrade20 = 0;
 
   @override
   void initState() {
-    Storage().getGradeQuestions(widget.studentnumber).then((value) {
-      double totalMaxScore = 0;
-      double totalCurrentScore = 0;
-      for (QuestionGrade question in value) {
-        totalMaxScore += question.maxGrade;
-        totalCurrentScore += question.currentGrade;
-      }
-      setState(() {
-        questions = value;
-        currentGrade20 = totalCurrentScore / (totalMaxScore / 20);
-      });
-    });
+    refresh(null);
+    timer = Timer.periodic(const Duration(milliseconds: 500), refresh);
     super.initState();
   }
 
@@ -74,5 +66,27 @@ class _StudentQuestionListState extends State<StudentQuestionList> {
         ]),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    timer!.cancel();
+    super.dispose();
+  }
+
+  refresh(timer) {
+    Storage().getGradeQuestions(widget.studentnumber).then((value) {
+      double totalMaxScore = 0;
+      double totalCurrentScore = 0;
+      for (QuestionGrade question in value) {
+        totalMaxScore += question.maxGrade;
+        totalCurrentScore += question.currentGrade;
+      }
+      setState(() {
+        questions = value;
+        currentGrade20 = totalCurrentScore / (totalMaxScore / 20);
+      });
+    });
+    log("trig");
   }
 }
