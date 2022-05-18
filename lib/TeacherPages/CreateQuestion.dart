@@ -12,6 +12,7 @@ class CreateQuestion extends StatefulWidget {
 }
 
 class _CreateQuestionState extends State<CreateQuestion> {
+  int multipleChoiceCorrectionAnswer = 0;
   int questionNumber = 1;
   var CodeCorrectionFieldText = TextEditingController();
 
@@ -30,18 +31,20 @@ class _CreateQuestionState extends State<CreateQuestion> {
                 "input", questionAnswerController.text, ""), double.parse(questionGradeController.text));
         break;
       case "MultipleChoice":
+        List<String> options = [];
+        for (int i = 0; i < 5; i++) {
+          if (optionControllers[i].text != "") {
+            options.add(optionControllers[i].text);
+          }
+        }
         Storage().setMultipleChoiceQuestion(
             questionNumber,
             MultipleChoiceQuestion(
                 questionNumber,
                 questionController.text,
                 0,
-                [
-                  option1Controller.text,
-                  option2Controller.text,
-                  option3Controller.text
-                ],
-                int.parse(questionAnswerController.text),
+                options,
+                multipleChoiceCorrectionAnswer,
                 0), double.parse(questionGradeController.text));
         break;
     }
@@ -49,9 +52,9 @@ class _CreateQuestionState extends State<CreateQuestion> {
     questionController.clear();
     questionGradeController.clear();
     questionAnswerController.clear();
-    option1Controller.clear();
-    option2Controller.clear();
-    option3Controller.clear();
+    for (var controller in optionControllers) {
+      controller.clear();
+    }
     questionType = null;
   }
 
@@ -61,13 +64,10 @@ class _CreateQuestionState extends State<CreateQuestion> {
   //var q_n = TextEditingController();
   var questionAnswerController = TextEditingController();
   var questionGradeController = TextEditingController();
-  var option1Controller = TextEditingController();
-  var option2Controller = TextEditingController();
-  var option3Controller = TextEditingController();
-  var option4Controller = TextEditingController();
-  var option5Controller = TextEditingController();
+  List<TextEditingController> optionControllers = [TextEditingController(), TextEditingController(), TextEditingController(), TextEditingController(), TextEditingController()];
   var formkey = GlobalKey<FormState>();
-  int numberofchose = 1;
+
+  int amountOfOptions = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                     borderRadius: BorderRadius.circular(12),
                     hint: Text("Question Type"),
                     value: questionType,
-                    items: [
+                    items: const [
                       DropdownMenuItem(
                         child: Text("open"),
                         value: "Open",
@@ -139,13 +139,13 @@ class _CreateQuestionState extends State<CreateQuestion> {
                 if (questionType == "CodeCorrection")
                   TextFormField(
                     decoration: InputDecoration(
-                        labelText: "Add here the code that will be corrected ",
+                        labelText: "The code to be corrected ",
                         border: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey),
                             borderRadius: BorderRadius.circular(10))),
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return "mustn't be empty";
+                        return "Cannot be empty";
                       }
                     },
                     controller: CodeCorrectionFieldText,
@@ -160,118 +160,47 @@ class _CreateQuestionState extends State<CreateQuestion> {
                   SizedBox(
                     height: 15,
                   ),
-                if (questionType == "MultipleChoice" && numberofchose != 0)
+                if (questionType == "MultipleChoice")
                   Row(children: [
-                    if (numberofchose >= 1)
+                    for (int i = 0; i < amountOfOptions; i++)
                       Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextFormField(
-                            onChanged: (value) {
-                              setState(() {
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Radio(
+                              value: i,
+                              onChanged: (int? value) {
+                                setState(() {
+                                  multipleChoiceCorrectionAnswer = value!;
+                                });
+                                },
+                              groupValue: multipleChoiceCorrectionAnswer,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: TextFormField(
+                                onChanged: (value) {
+                                  setState(() {
 
-                              });
-                            },
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "mustn't be empty";
-                              }
-                            },
-                            controller: option1Controller,
-                            decoration: InputDecoration(
-                                labelText: "Chose 1",
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10))),
-                          ),
-                        ),
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return "Cannot be empty";
+                                  }
+                                },
+                                controller: optionControllers[i],
+                                decoration: InputDecoration(
+                                    labelText: "Option " + (i + 1).toString(),
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.grey),
+                                        borderRadius: BorderRadius.circular(10))),
+                              ),
+                            ),
+                          ],
+                          )
                       ),
-                    if (numberofchose >= 2)
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextFormField(
-                            onChanged: (value) {
-                              setState(() {
-
-                              });
-                            },
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "mustn't be empty";
-                              }
-                            },
-                            controller: option2Controller,
-                            decoration: InputDecoration(
-                                labelText: "Chose 2",
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10))),
-                          ),
-                        ),
-                      ),
-                    if (numberofchose >= 3)
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextFormField(
-                            onChanged: (value) {
-                              setState(() {
-
-                              });
-                            },
-                            decoration: InputDecoration(
-                                labelText: "Chose 3",
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10))),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "mustn't be empty";
-                              }
-                            },
-                            controller: option3Controller,
-                          ),
-                        ),
-                      ),
-                    if (numberofchose >= 4)
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                                labelText: "Chose 4",
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10))),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "mustn't be empty";
-                              }
-                            },
-                            controller: option4Controller,
-                          ),
-                        ),
-                      ),
-                    if (numberofchose >= 5)
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                                labelText: "Chose 5",
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10))),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "mustn't be empty";
-                              }
-                            },
-                            controller: option5Controller,
-                          ),
-                        ),
-                      )
                   ]),
                 if (questionType == "MultipleChoice")
                   SizedBox(
@@ -280,16 +209,15 @@ class _CreateQuestionState extends State<CreateQuestion> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FloatingActionButton.small(
-                            onPressed: numberofchose == 5
+                            onPressed: amountOfOptions >= 5
                                 ? null
                                 : () {
                                     setState(() {
-                                      numberofchose++;
-
+                                      amountOfOptions++;
                                     });
 
                                   },
-                            backgroundColor: numberofchose == 5
+                            backgroundColor: amountOfOptions >= 5
                                 ? Colors.grey
                                 : Colors.blueAccent,
                             child: Icon(Icons.add),
@@ -298,15 +226,14 @@ class _CreateQuestionState extends State<CreateQuestion> {
                             width: 15,
                           ),
                           FloatingActionButton.small(
-                            onPressed: numberofchose == 0
+                            onPressed: amountOfOptions <= 2
                                 ? null
                                 : () {
                                     setState(() {
-                                      numberofchose--;
-                                      _remove_choce();
+                                      amountOfOptions--;
                                     });
                                   },
-                            backgroundColor: numberofchose == 0
+                            backgroundColor: amountOfOptions <= 2
                                 ? Colors.grey
                                 : Colors.blueAccent,
                             child: Icon(Icons.remove),
@@ -323,16 +250,20 @@ class _CreateQuestionState extends State<CreateQuestion> {
                           borderSide: BorderSide(color: Colors.grey),
                           borderRadius: BorderRadius.circular(10))),
                   validator: (value) {
-                    if (value!.isEmpty) {
-                      return "mustn't be empty";
+                    double? temp = double.tryParse(value!);
+                    if (temp == null) {
+                      return "Not a valid number";
                     }
+                    return null;
                   },
+                  onChanged: (value) => formkey.currentState!.validate(),
                   controller: questionGradeController,
                   keyboardType: TextInputType.number,
                 ),
                 SizedBox(
                   height: 33,
                 ),
+                if (questionType != "MultipleChoice")
                 TextFormField(
                         decoration: InputDecoration(
                             labelText: "Question Answer",
@@ -341,7 +272,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                                 borderRadius: BorderRadius.circular(10))),
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return "mustn't be empty";
+                            return "Cannot be empty";
                           }
                         },
                         controller: questionAnswerController,
@@ -415,29 +346,6 @@ class _CreateQuestionState extends State<CreateQuestion> {
         ),
       ),
     );
-  }
-  void _remove_choce() {
-    if(numberofchose==0){
-      option1Controller.clear();
-      option2Controller.clear();
-      option3Controller.clear();
-      option4Controller.clear();
-      option5Controller.clear();
-    } if(numberofchose==1){
-      option2Controller.clear();
-      option3Controller.clear();
-      option4Controller.clear();
-      option5Controller.clear();
-    } if(numberofchose==2){
-      option3Controller.clear();
-      option4Controller.clear();
-      option5Controller.clear();
-    } if(numberofchose==3){
-      option4Controller.clear();
-      option5Controller.clear();
-    } if(numberofchose==4){
-      option5Controller.clear();
-    }
   }
 }
 
