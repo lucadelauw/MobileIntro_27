@@ -87,6 +87,5 @@ class _StudentQuestionListState extends State<StudentQuestionList> {
         currentGrade20 = totalCurrentScore / (totalMaxScore / 20);
       });
     });
-    log("trig");
   }
 }

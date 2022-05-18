@@ -21,13 +21,13 @@ class _CreateQuestionState extends State<CreateQuestion> {
         Storage().setOpenQuestion(
             questionNumber,
             OpenQuestion(questionNumber, questionController.text, 0,
-                questionAnswerController.text, ""));
+                questionAnswerController.text, ""), double.parse(questionGradeController.text));
         break;
       case "CodeCorrection":
         Storage().setCodeCorrectionQuestion(
             questionNumber,
             CodeCorrectionQuestion(questionNumber, questionController.text, 0,
-                "input", questionAnswerController.text, ""));
+                "input", questionAnswerController.text, ""), double.parse(questionGradeController.text));
         break;
       case "MultipleChoice":
         Storage().setMultipleChoiceQuestion(
@@ -42,7 +42,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                   option3Controller.text
                 ],
                 int.parse(questionAnswerController.text),
-                0));
+                0), double.parse(questionGradeController.text));
         break;
     }
     questionNumber++;
@@ -354,6 +354,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                       child: InkWell(
                         onTap: () {
                           if (formkey.currentState!.validate()) {
+                            setQuestion();
                             Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
@@ -385,7 +386,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                       child: InkWell(
                         onTap: () {
                           if (formkey.currentState!.validate()) {
-                            //setQuestion();
+                            setQuestion();
                           }
                         },
                         child: Container(

@@ -113,8 +113,10 @@ class Storage {
            for (int i = 0 ; i < value.docs.length; i++) {
              element = value.docs[i];
              List<Map<String, dynamic>> answers = [];
-             for (dynamic answer in element.get('answers')) {
-             answers.add(Map<String, dynamic>.from(answer));
+             if (element.get('answers') != null) {
+               for (dynamic answer in element.get('answers')) {
+                 answers.add(Map<String, dynamic>.from(answer));
+               }
              }
              if(element.get('type') == "Open") {
              tempQuestions.add(OpenQuestionStorage(i, element.get('question'), element.get('answer'), answers, double.parse(element.get('maxGrade').toString())));
@@ -137,26 +139,25 @@ class Storage {
      }
   }
 
-  Future<void> setMultipleChoiceQuestion(int questionNumber, MultipleChoiceQuestion questionData) async {
+  Future<void> setMultipleChoiceQuestion(int questionNumber, MultipleChoiceQuestion questionData, double maxGrade) async {
     await _init();
 
     await FirebaseFirestore.instance.collection('questions').doc(
-        questionNumber.toString()).set({'question': questionData.question, 'type': 'MultipleChoice', 'input': questionData.input, 'answer': questionData.answer, 'answers': []});
+        questionNumber.toString()).set({'question': questionData.question, 'type': 'MultipleChoice', 'input': questionData.input, 'answer': questionData.answer, 'answers': [], 'maxGrade': maxGrade});
   }
 
-  Future<void> setOpenQuestion(int questionNumber, OpenQuestion questionData) async {
+  Future<void> setOpenQuestion(int questionNumber, OpenQuestion questionData, double maxGrade) async {
     await _init();
 
-    //questionsStorage[questionNumber - 1] = OpenQuestionStorage(questionData.question, questionData.answer!, [], questionNumber);
     await FirebaseFirestore.instance.collection('questions').doc(
-        questionNumber.toString()).set({'question': questionData.question, 'type': 'Open', 'answer': questionData.answer, 'answers': []});
+        questionNumber.toString()).set({'question': questionData.question, 'type': 'Open', 'answer': questionData.answer, 'answers': [], 'maxGrade': maxGrade});
   }
 
-  Future<void> setCodeCorrectionQuestion(int questionNumber, CodeCorrectionQuestion questionData) async {
+  Future<void> setCodeCorrectionQuestion(int questionNumber, CodeCorrectionQuestion questionData, double maxGrade) async {
     await _init();
 
     await FirebaseFirestore.instance.collection('questions').doc(
-        questionNumber.toString()).set({'question': questionData.question, 'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer, 'answers': []});
+        questionNumber.toString()).set({'question': questionData.question, 'type': 'CodeCorrection', 'input': questionData.input, 'answer': questionData.answer, 'answers': [], 'maxGrade': maxGrade});
   }
 
   setAnswer(int studentnumber, int questionNumber, dynamic answer, int timeGoneToBackground) async {

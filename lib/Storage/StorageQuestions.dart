@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobileintro/Questions.dart';
 import 'package:mobileintro/TeacherPages/GradeQuestions.dart';
 
@@ -37,11 +38,15 @@ class OpenQuestionStorage extends QuestionStorage {
   QuestionGrade toGradeQuestion(int studentNumber) {
     String? currentAnswer;
     double currentGrade = 0;
+    GeoPoint? location;
+    int timesGoneToBackground = 0;
     if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
       currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
       currentGrade = double.parse(answers.singleWhere((element) => (element['number'] == studentNumber))['currentGrade'].toString());
+      location = answers.singleWhere((element) => (element['number'] == studentNumber))['location'];
+      timesGoneToBackground = answers.singleWhere((element) => (element['number'] == studentNumber))['timesGoneToBackground'];
     }
-    return OpenGrade(questionNumber, studentNumber, question, answer, currentAnswer, maxGrade, currentGrade);
+    return OpenGrade(questionNumber, studentNumber, question, answer, currentAnswer, maxGrade, currentGrade, location!, timesGoneToBackground);
   }
 }
 class MultipleChoiceQuestionStorage extends QuestionStorage {
@@ -69,11 +74,15 @@ class MultipleChoiceQuestionStorage extends QuestionStorage {
   QuestionGrade toGradeQuestion(int studentNumber) {
     int? currentAnswer;
     double currentGrade = 0;
+    GeoPoint? location;
+    int timesGoneToBackground = 0;
     if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
       currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
       currentGrade = double.parse(answers.singleWhere((element) => (element['number'] == studentNumber))['currentGrade'].toString());
+      location = answers.singleWhere((element) => (element['number'] == studentNumber))['location'];
+      timesGoneToBackground = answers.singleWhere((element) => (element['number'] == studentNumber))['timesGoneToBackground'];
     }
-    return MultipleChoiceGrade(questionNumber, studentNumber, question, input, answer, currentAnswer, maxGrade, currentGrade);
+    return MultipleChoiceGrade(questionNumber, studentNumber, question, input, answer, currentAnswer, maxGrade, currentGrade, location!, timesGoneToBackground);
   }
 }
 class CodeCorrectionQuestionStorage extends QuestionStorage {
@@ -101,10 +110,15 @@ class CodeCorrectionQuestionStorage extends QuestionStorage {
   QuestionGrade toGradeQuestion(int studentNumber) {
     String? currentAnswer;
     double currentGrade = 0;
+    GeoPoint? location;
+    int timesGoneToBackground = 0;
     if (answers.where((element) => (element['number'] == studentNumber)).isNotEmpty) {
       currentAnswer = answers.singleWhere((element) => (element['number'] == studentNumber))['answer'];
       currentGrade = double.parse(answers.singleWhere((element) => (element['number'] == studentNumber))['currentGrade'].toString());
+      location = answers.singleWhere((element) => (element['number'] == studentNumber))['location'];
+      timesGoneToBackground = answers.singleWhere((element) => (element['number'] == studentNumber))['timesGoneToBackground'];
     }
-    return CodeCorrectionGrade(questionNumber, studentNumber, question, input, answer, currentAnswer, maxGrade, currentGrade);
+    return CodeCorrectionGrade(questionNumber, studentNumber, question, input, answer, currentAnswer, maxGrade, currentGrade, location!, timesGoneToBackground);
   }
 }
+
