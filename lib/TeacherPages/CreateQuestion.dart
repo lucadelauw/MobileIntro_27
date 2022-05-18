@@ -209,6 +209,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FloatingActionButton.small(
+                            heroTag: 1,
                             onPressed: amountOfOptions >= 5
                                 ? null
                                 : () {
@@ -226,6 +227,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                             width: 15,
                           ),
                           FloatingActionButton.small(
+                            heroTag: 2,
                             onPressed: amountOfOptions <= 2
                                 ? null
                                 : () {
