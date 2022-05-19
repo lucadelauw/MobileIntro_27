@@ -65,7 +65,15 @@ class _CodeCorrectionWidgetState extends State<CodeCorrectionWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(widget.question.question),
+        Center(
+          child: Text(
+            widget.question.question,
+            style: const TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
         Form(child:
         TextFormField(
           initialValue: initvalue,
@@ -135,7 +143,15 @@ class _OpenQuestionWidgetState extends State<OpenQuestionWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(widget.question.question),
+        Center(
+          child: Text(
+            widget.question.question,
+            style: const TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
         Form(child:
         TextFormField(
           initialValue: widget.question.currentAnswer,
@@ -212,7 +228,15 @@ class _MultipleChoiceWidgetState extends State<MultipleChoiceWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(widget.question.question),
+        Center(
+          child: Text(
+            widget.question.question,
+            style: const TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
         for (int i = 0; i < widget.question.input.length; i ++)
           ListTile(
             title: Text(widget.question.input[i]),

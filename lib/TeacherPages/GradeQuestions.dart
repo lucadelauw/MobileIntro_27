@@ -80,7 +80,15 @@ class _CodeCorrectionGradeWidgetState extends State<CodeCorrectionGradeWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(widget.question.question),
+          Center(
+          child: Text(
+          widget.question.question,
+            style: const TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
+          ),
+          ),
           TextFormField(
             enabled: false,
             initialValue: widget.question.currentAnswer,
@@ -215,7 +223,15 @@ class _MultipleChoiceGradeWidgetState extends State<MultipleChoiceGradeWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(widget.question.question),
+            Center(
+              child: Text(
+                widget.question.question,
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
             for (int i = 0; i < widget.question.input.length; i++)
               ListTile(
                 title: Text(widget.question.input[i]),
@@ -293,7 +309,15 @@ class _OpenGradeWidgetState extends State<OpenGradeWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(widget.question.question),
+          Center(
+            child: Text(
+              widget.question.question,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+          ),
           TextFormField(
             enabled: false,
             initialValue: widget.question.currentAnswer,

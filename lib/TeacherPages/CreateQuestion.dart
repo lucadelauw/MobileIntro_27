@@ -14,7 +14,6 @@ class CreateQuestion extends StatefulWidget {
 class _CreateQuestionState extends State<CreateQuestion> {
   int multipleChoiceCorrectionAnswer = 0;
   int questionNumber = 1;
-  var CodeCorrectionFieldText = TextEditingController();
 
   setQuestion() {
     switch (questionType) {
@@ -22,13 +21,15 @@ class _CreateQuestionState extends State<CreateQuestion> {
         Storage().setOpenQuestion(
             questionNumber,
             OpenQuestion(questionNumber, questionController.text, 0,
-                questionAnswerController.text, ""), double.parse(questionGradeController.text));
+                questionAnswerController.text, ""),
+            double.parse(questionGradeController.text));
         break;
       case "CodeCorrection":
         Storage().setCodeCorrectionQuestion(
             questionNumber,
             CodeCorrectionQuestion(questionNumber, questionController.text, 0,
-                "input", questionAnswerController.text, ""), double.parse(questionGradeController.text));
+                codeCorrectionFieldText.text, questionAnswerController.text,
+                ""), double.parse(questionGradeController.text));
         break;
       case "MultipleChoice":
         List<String> options = [];
@@ -64,7 +65,14 @@ class _CreateQuestionState extends State<CreateQuestion> {
   //var q_n = TextEditingController();
   var questionAnswerController = TextEditingController();
   var questionGradeController = TextEditingController();
-  List<TextEditingController> optionControllers = [TextEditingController(), TextEditingController(), TextEditingController(), TextEditingController(), TextEditingController()];
+  var codeCorrectionFieldText = TextEditingController();
+  List<TextEditingController> optionControllers = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController()
+  ];
   var formkey = GlobalKey<FormState>();
 
   int amountOfOptions = 2;
@@ -148,7 +156,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                         return "Cannot be empty";
                       }
                     },
-                    controller: CodeCorrectionFieldText,
+                    controller: codeCorrectionFieldText,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
                   ),
@@ -164,41 +172,44 @@ class _CreateQuestionState extends State<CreateQuestion> {
                   Row(children: [
                     for (int i = 0; i < amountOfOptions; i++)
                       Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Radio(
-                              value: i,
-                              onChanged: (int? value) {
-                                setState(() {
-                                  multipleChoiceCorrectionAnswer = value!;
-                                });
-                                },
-                              groupValue: multipleChoiceCorrectionAnswer,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: TextFormField(
-                                onChanged: (value) {
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Radio(
+                                value: i,
+                                onChanged: (int? value) {
                                   setState(() {
-
+                                    multipleChoiceCorrectionAnswer = value!;
                                   });
                                 },
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "Cannot be empty";
-                                  }
-                                },
-                                controller: optionControllers[i],
-                                decoration: InputDecoration(
-                                    labelText: "Option " + (i + 1).toString(),
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.grey),
-                                        borderRadius: BorderRadius.circular(10))),
+                                groupValue: multipleChoiceCorrectionAnswer,
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0),
+                                child: TextFormField(
+                                  onChanged: (value) {
+                                    setState(() {
+
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return "Cannot be empty";
+                                    }
+                                  },
+                                  controller: optionControllers[i],
+                                  decoration: InputDecoration(
+                                      labelText: "Option " + (i + 1).toString(),
+                                      border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.grey),
+                                          borderRadius: BorderRadius.circular(
+                                              10))),
+                                ),
+                              ),
+                            ],
                           )
                       ),
                   ]),
@@ -213,11 +224,10 @@ class _CreateQuestionState extends State<CreateQuestion> {
                             onPressed: amountOfOptions >= 5
                                 ? null
                                 : () {
-                                    setState(() {
-                                      amountOfOptions++;
-                                    });
-
-                                  },
+                              setState(() {
+                                amountOfOptions++;
+                              });
+                            },
                             backgroundColor: amountOfOptions >= 5
                                 ? Colors.grey
                                 : Colors.blueAccent,
@@ -231,10 +241,10 @@ class _CreateQuestionState extends State<CreateQuestion> {
                             onPressed: amountOfOptions <= 2
                                 ? null
                                 : () {
-                                    setState(() {
-                                      amountOfOptions--;
-                                    });
-                                  },
+                              setState(() {
+                                amountOfOptions--;
+                              });
+                            },
                             backgroundColor: amountOfOptions <= 2
                                 ? Colors.grey
                                 : Colors.blueAccent,
@@ -266,21 +276,24 @@ class _CreateQuestionState extends State<CreateQuestion> {
                   height: 33,
                 ),
                 if (questionType != "MultipleChoice")
-                TextFormField(
-                        decoration: InputDecoration(
-                            labelText: "Question Answer",
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(10))),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Cannot be empty";
-                          }
-                        },
-                        controller: questionAnswerController,
-                        keyboardType: TextInputType.multiline,
-                        minLines: null,
-                      ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                        labelText: "Question Answer",
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10))),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Cannot be empty";
+                      }
+                    },
+                    onChanged: (v) {
+                      formkey.currentState!.validate();
+                    },
+                    controller: questionAnswerController,
+                    keyboardType: TextInputType.multiline,
+                    minLines: null,
+                  ),
                 Row(
                   children: [
                     Expanded(
@@ -298,7 +311,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                           }
                         },
                         child: Container(
-                          child: Center(
+                          child: const Center(
                             child: Text(
                               "Finish",
                               style: TextStyle(
@@ -323,7 +336,7 @@ class _CreateQuestionState extends State<CreateQuestion> {
                           }
                         },
                         child: Container(
-                          child: Center(
+                          child: const Center(
                             child: Text(
                               "NEXT",
                               style: TextStyle(

@@ -267,20 +267,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 }
 
 class _MyAppBarState extends State<MyAppBar> {
-  Timer? timer;
-  bool isSynced = true;
 
   @override
   void initState() {
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      Storage().isSynced().then((value) => {
-        if (mounted) {
-          setState(() {
-            isSynced = value;
-          })
-        }
-      });
-    });
+
     super.initState();
   }
 
@@ -289,14 +279,12 @@ class _MyAppBarState extends State<MyAppBar> {
 
     return AppBar(
       leading: Navigator.canPop(context) ? const BackButton() : null,
-      title: const Text('E-xammmmmmm'),
-      actions: [Icon(isSynced ? Icons.cloud_done : Icons.sync_problem)],
+      title: const Text('E-xam'),
     );
   }
 
   @override
   void dispose() {
-    timer?.cancel();
     super.dispose();
   }
 }
